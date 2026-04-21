@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 public class PlayerMovement : MonoBehaviour
 {
@@ -29,6 +30,8 @@ public class PlayerMovement : MonoBehaviour
     private Transform headPoint;
     [SerializeField]
     private JumpCtl jumpCtl;
+        [SerializeField]
+    private CamCtl camCtl;
 
     private Vector3 cameraRotation = Vector3.zero;
 
@@ -50,6 +53,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (!rb) rb = GetComponent<Rigidbody>();
         jumpCtl.Init(rb);
+        camCtl.Init(InputActions);
     }
 
     private void Update()
@@ -91,6 +95,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void RotateCamera()
     {
+        if (IsTouchOverUI()) return;
         float horizontalRotationAmount = m_lookAmt.x * CameraSpeed.x * Time.fixedDeltaTime;
         float verticalRotationAmount = m_lookAmt.y * CameraSpeed.y * Time.fixedDeltaTime;
 
@@ -122,5 +127,16 @@ public class PlayerMovement : MonoBehaviour
         Vector3 right = useCinemachine ? Vector3.Cross(Vector3.up, headPoint.position - cameraCinemachine.position) : cameraPoint.right;
         right.y = 0;
         return right.normalized;
+    }
+
+    private bool IsTouchOverUI()
+    {
+        if (Touchscreen.current == null) return false;
+        var touch = Touchscreen.current.primaryTouch;
+
+        if (!touch.press.isPressed)
+            return false;
+
+        return EventSystem.current.IsPointerOverGameObject(touch.touchId.ReadValue());
     }
 }
