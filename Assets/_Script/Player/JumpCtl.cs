@@ -1,6 +1,4 @@
-using System;
 using Cysharp.Threading.Tasks;
-using NUnit.Framework;
 using UnityEngine;
 
 public class JumpCtl : MonoBehaviour
@@ -40,9 +38,18 @@ public class JumpCtl : MonoBehaviour
 
     private void AddFJumpForce()
     {
+        ResetForce();
         rb.AddForceAtPosition(Vector3.up * JumpForce, transform.position, ForceMode.Impulse);
         crrJumpCount++;
         WaitForGrounded().Forget();
+        Debug.Log("Jumped! Current jump count: " + crrJumpCount);
+    }
+
+    private void ResetForce()
+    {
+        Vector3 velocity = rb.linearVelocity;
+        velocity.y = 0;
+        rb.linearVelocity = velocity;
     }
 
     private async UniTask WaitForGrounded()
@@ -50,5 +57,6 @@ public class JumpCtl : MonoBehaviour
         await UniTask.WaitForSeconds(jumpDelay);
         await UniTask.WaitUntil(() => isGrounded);
         crrJumpCount = 0;
+        Debug.Log("Landed! Jump count reset.");
     }
 }

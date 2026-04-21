@@ -57,7 +57,7 @@ public class PlayerMovement : MonoBehaviour
         m_moveAmt = m_moveAction.ReadValue<Vector2>();
         m_lookAmt = m_lookAction.ReadValue<Vector2>();
 
-        if (m_jumpAction.WasPressedThisFrame())
+        if (m_jumpAction.IsPressed())
         {
             jumpCtl.Jump();
         }
