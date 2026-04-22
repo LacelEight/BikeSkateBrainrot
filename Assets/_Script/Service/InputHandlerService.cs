@@ -27,11 +27,22 @@ public class InputHandlerService : LacelService, IService
         if (!touch.press.isPressed)
             return false;
 
-        return EventSystem.current.IsPointerOverGameObject(touch.touchId.ReadValue());
+        return IsPointerOverUI(touch.position.ReadValue());
     }
 
     public InputActionAsset GetInputActions()
     {
         return config.inputActions;
+    }
+
+    public bool IsPointerOverUI(Vector2 screenPos)
+    {
+        PointerEventData eventData = new PointerEventData(EventSystem.current);
+        eventData.position = screenPos;
+
+        var results = new System.Collections.Generic.List<RaycastResult>();
+        EventSystem.current.RaycastAll(eventData, results);
+
+        return results.Count > 0;
     }
 }

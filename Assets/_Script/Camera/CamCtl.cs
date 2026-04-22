@@ -4,30 +4,39 @@ using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
 
 public class CamCtl : MonoBehaviour
 {
+    #region Input Actions
     private InputActionAsset inputActions;
     private InputAction m_SecondaryTouchAction;
-
     private InputAction m_PrimaryTouchDelta;
     private InputAction m_SecondaryTouchDelta;
     private InputAction m_ZoomAction;
     private Vector2 m_lookAmt;
     private Vector2 m_zoomAmt;
     private InputAction m_lookAction;
-    private CancellationTokenSource cts;
+    #endregion
+
+    #region Refereces
+    [Header("References")]
     public Transform Target;
     public Camera Camera;
-    public float ZoomSpeed = 5f;
+    #endregion
 
+    #region Settings
+    [Header("Settings")]
+    public float ZoomSpeed = 5f;
     public Vector2 CameraSpeed = new Vector2(20f, 5f);
     public float MinZoom = 2f;
     public float MaxZoom = 10f;
-
+    #endregion
+    private CancellationTokenSource cts;
+    private bool isZooming = false;
     private float currentZoom = 5f;
     private Tween zoomTween;
-
+    private float previousZoomDistance = 0f;
     private Vector3 cameraRotation = Vector3.zero;
 
     private void Awake()
@@ -43,7 +52,6 @@ public class CamCtl : MonoBehaviour
         m_SecondaryTouchAction.canceled += EndZoom;
 #endif
     }
-
     private void OnDestroy()
     {
 #if UNITY_ANDROID || UNITY_IOS
@@ -54,7 +62,6 @@ public class CamCtl : MonoBehaviour
         }
 #endif
     }
-
     private void Update()
     {
         m_lookAmt = m_lookAction.ReadValue<Vector2>();
@@ -63,16 +70,26 @@ public class CamCtl : MonoBehaviour
         ZoomCamera();
 #endif
     }
-
     private void StartZoom(InputAction.CallbackContext context)
     {
+        // Validate both touches exist and are outside UI before starting zoom
+        if (Touchscreen.current.touches.Count < 2)
+            return;
+
+        Vector2 touch0Pos = Touchscreen.current.touches[0].position.ReadValue();
+        Vector2 touch1Pos = Touchscreen.current.touches[1].position.ReadValue();
+
+        if (Services.InputService.IsPointerOverUI(touch0Pos) || Services.InputService.IsPointerOverUI(touch1Pos))
+            return;
+
+        isZooming = true;
         cts = new CancellationTokenSource();
         ZoomDection(cts.Token).Forget();
         Debug.Log("Zoom Detection Started");
     }
-
     private void EndZoom(InputAction.CallbackContext context)
     {
+        isZooming = false;
         Debug.Log("Zoom Detection Ended");
         if (cts != null)
         {
@@ -80,28 +97,65 @@ public class CamCtl : MonoBehaviour
             cts.Dispose();
             cts = null;
         }
+        // Reset zoom reference for next zoom gesture
+        previousZoomDistance = 0f;
     }
-
     public void RotateCamera()
+    {
+#if UNITY_ANDROID || UNITY_IOS
+        HandleTouchCamera();
+#else
+        HandleMouseCamera();
+#endif
+    }
+    private void HandleMouseCamera()
     {
         if (Services.InputService.IsTouchOverUI()) return;
         float horizontalRotationAmount = m_lookAmt.x * CameraSpeed.x * Time.fixedDeltaTime;
         float verticalRotationAmount = m_lookAmt.y * CameraSpeed.y * Time.fixedDeltaTime;
-
-#if UNITY_ANDROID || UNITY_IOS
-        // Invert vertical rotation for touch input
-        verticalRotationAmount = -verticalRotationAmount;
-#endif
 
         cameraRotation.x += verticalRotationAmount;
         cameraRotation.y += horizontalRotationAmount;
         cameraRotation.x = Mathf.Clamp(cameraRotation.x, -90f, 90f);
         Target.rotation = Quaternion.Euler(cameraRotation);
     }
+    private void HandleTouchCamera()
+    {
+        if (Touchscreen.current == null) return;
 
+        // Skip camera rotation if zooming
+        if (isZooming) return;
+
+        TouchControl camTouch = null;
+
+        foreach (var touch in Touchscreen.current.touches)
+        {
+            if (!touch.press.isPressed) continue;
+
+            Vector2 pos = touch.position.ReadValue();
+
+            if (Services.InputService.IsPointerOverUI(pos)) continue;
+
+            camTouch = touch;
+            break;
+        }
+
+        if (camTouch == null) return;
+
+        Vector2 delta = camTouch.delta.ReadValue();
+
+        float horizontal = delta.x * CameraSpeed.x * Time.deltaTime;
+        float vertical = -delta.y * CameraSpeed.y * Time.deltaTime;
+
+        cameraRotation.x += vertical;
+        cameraRotation.y += horizontal;
+
+        cameraRotation.x = Mathf.Clamp(cameraRotation.x, -90f, 90f);
+
+        Target.rotation = Quaternion.Euler(cameraRotation);
+    }
     private async UniTask ZoomDection(CancellationToken cancellationToken)
     {
-        float previousDistance = 0f;
         float distance = 0f;
 
         Debug.Log("Zoom Detection Started");
@@ -110,33 +164,29 @@ public class CamCtl : MonoBehaviour
         {
             try
             {
-                if (Services.InputService.IsTouchOverUI()) 
-                {
-                    await UniTask.Delay(10, cancellationToken: cancellationToken);
-                    continue;
-                }
                 if (Touchscreen.current.touches.Count < 2)
                 {
                     await UniTask.Delay(10, cancellationToken: cancellationToken);
                     continue;
                 }
 
-                distance = Vector2.Distance(Touchscreen.current.touches[0].position.ReadValue(), Touchscreen.current.touches[1].position.ReadValue());
+                Vector2 touch0Pos = Touchscreen.current.touches[0].position.ReadValue();
+                Vector2 touch1Pos = Touchscreen.current.touches[1].position.ReadValue();
 
-                //if (IsOpposing())
-                if (distance > previousDistance)
-                {
-                    Debug.Log("Zooming In");
-                    ZoomIn();
+                distance = Vector2.Distance(touch0Pos, touch1Pos);
 
-                }
-                else if (distance < previousDistance)
-                {
-                    Debug.Log("Zooming Out");
-                    ZoomOut();
-
-                }
-                previousDistance = distance;
+                if (IsOpposing())
+                    if (distance > previousZoomDistance)
+                    {
+                        //Debug.Log("Zooming In");
+                        ZoomIn();
+                    }
+                    else if (distance < previousZoomDistance)
+                    {
+                        //Debug.Log("Zooming Out");
+                        ZoomOut();
+                    }
+                previousZoomDistance = distance;
                 await UniTask.Yield(cancellationToken);
             }
             catch (OperationCanceledException)
@@ -147,7 +197,6 @@ public class CamCtl : MonoBehaviour
 
         Debug.Log("Zoom Detection Ended");
     }
-
     private void ZoomCamera()
     {
         //Debug.Log("Zoom Amount: " + m_zoomAmt);
@@ -163,26 +212,25 @@ public class CamCtl : MonoBehaviour
     private void ZoomIn()
     {
         Vector3 currentPos = Camera.transform.localPosition;
-        float targetZ = currentPos.z + 1f;
+        float targetZ = currentPos.z + ZoomSpeed * Time.deltaTime;
         targetZ = Mathf.Clamp(targetZ, -MaxZoom, -MinZoom);
-        
+
         zoomTween?.Kill();
-        zoomTween = DOTween.To(() => Camera.transform.localPosition.z, 
-            z => Camera.transform.localPosition = new Vector3(currentPos.x, currentPos.y, z), 
-            targetZ, 
+        zoomTween = DOTween.To(() => Camera.transform.localPosition.z,
+            z => Camera.transform.localPosition = new Vector3(currentPos.x, currentPos.y, z),
+            targetZ,
             0.2f);
     }
-
     private void ZoomOut()
     {
         Vector3 currentPos = Camera.transform.localPosition;
-        float targetZ = currentPos.z - 1f;
+        float targetZ = currentPos.z - ZoomSpeed * Time.deltaTime;
         targetZ = Mathf.Clamp(targetZ, -MaxZoom, -MinZoom);
-        
+
         zoomTween?.Kill();
-        zoomTween = DOTween.To(() => Camera.transform.localPosition.z, 
-            z => Camera.transform.localPosition = new Vector3(currentPos.x, currentPos.y, z), 
-            targetZ, 
+        zoomTween = DOTween.To(() => Camera.transform.localPosition.z,
+            z => Camera.transform.localPosition = new Vector3(currentPos.x, currentPos.y, z),
+            targetZ,
             0.2f);
     }
     private bool IsOpposing()

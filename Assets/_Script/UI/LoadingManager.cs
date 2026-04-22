@@ -14,6 +14,7 @@ public class LoadingManager : MonoBehaviour
 
     private void OnSystemInitialized()
     {
+        Application.targetFrameRate = 60;
         _sceneLoadHandler = new SceneLoadHandler(Services.SceneManager);
         _sceneLoadHandler.OnProgress(OnLoadProgress);
         _sceneLoadHandler.OnLoadComplete(OnSceneLoadComplete);
