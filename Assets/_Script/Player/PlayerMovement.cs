@@ -54,8 +54,8 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
-        m_moveAmt = m_moveAction.ReadValue<Vector2>();
-
+        //m_moveAmt = m_moveAction.ReadValue<Vector2>();
+        m_moveAmt = Services.InputService.JoystickInput;
 
         if (m_jumpAction.IsPressed())
         {

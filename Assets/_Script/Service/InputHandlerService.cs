@@ -9,6 +9,11 @@ using UnityEngine.InputSystem;
 public class InputHandlerService : LacelService, IService
 {
     public InputHandlerConfig config;
+
+    private int joystickPointerId = -1;
+    private Vector2 joystickInput = Vector2.zero;
+    public Vector2 JoystickInput => joystickInput;
+    public int JoystickPointerId => joystickPointerId;
     public async UniTaskVoid InitAsync()
     {
 
@@ -44,5 +49,15 @@ public class InputHandlerService : LacelService, IService
         EventSystem.current.RaycastAll(eventData, results);
 
         return results.Count > 0;
+    }
+
+    public void SetJoystickPointerId(int pointerId)
+    {
+        joystickPointerId = pointerId;
+    }
+
+    public void SetJoystickInput(Vector2 input)
+    {
+        joystickInput = input;
     }
 }
