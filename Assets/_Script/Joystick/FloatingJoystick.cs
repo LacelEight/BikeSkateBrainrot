@@ -38,7 +38,7 @@ public class FloatingJoystick : MonoBehaviour, IPointerDownHandler, IPointerUpHa
             basePosition = localPosition;
             
             // Set handle to center of base (local position)
-            //joystickHandle.localPosition = Vector2.zero;
+            joystickHandle.localPosition = Vector2.zero;
             
             joystickBase.gameObject.SetActive(true);
             input = Vector2.zero;
