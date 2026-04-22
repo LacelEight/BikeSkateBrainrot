@@ -1,16 +1,37 @@
+using System;
+using Cysharp.Threading.Tasks;
+using LacelSDK;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 
-public class InputHandlerService : MonoBehaviour
+[CreateAssetMenu(fileName = "InputHandlerService", menuName = "Services/InputHandlerService")]
+public class InputHandlerService : LacelService, IService
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public InputHandlerConfig config;
+    public async UniTaskVoid InitAsync()
     {
-        
+
     }
 
-    // Update is called once per frame
-    void Update()
+    public InputHandlerConfig GetConfig()
     {
-        
+        return config;
+    }
+
+    public bool IsTouchOverUI()
+    {
+        if (Touchscreen.current == null) return false;
+        var touch = Touchscreen.current.primaryTouch;
+
+        if (!touch.press.isPressed)
+            return false;
+
+        return EventSystem.current.IsPointerOverGameObject(touch.touchId.ReadValue());
+    }
+
+    public InputActionAsset GetInputActions()
+    {
+        return config.inputActions;
     }
 }

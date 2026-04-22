@@ -222,16 +222,12 @@ MonoBehaviour:
   WalkSpeed: 5
   JumpForce: 5
   RotateSpeed: 5
-  CameraSpeed: {x: 20, y: 5}
   rb: {fileID: 44800713}
-  InputActions: {fileID: -944628639613478452, guid: 4e5b333c2a908c64399472d14192aead, type: 3}
   useCinemachine: 0
-  mainCamera: {fileID: 330585545}
-  cameraPoint: {fileID: 1368897921}
   cameraCinemachine: {fileID: 1193418538}
   headPoint: {fileID: 921105853}
   jumpCtl: {fileID: 1630618894}
-  camCtl: {fileID: 0}
+  camCtl: {fileID: 1368897923}
 --- !u!4 &62955642 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 9192594046179835071, guid: 9a4b23f0edb066d4781651e506e41a95, type: 3}
@@ -1467,51 +1463,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 9192594046179835071, guid: 9a4b23f0edb066d4781651e506e41a95, type: 3}
   m_PrefabInstance: {fileID: 456441458}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &470904265
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 470904266}
-  - component: {fileID: 470904267}
-  m_Layer: 0
-  m_Name: GameSystem
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &470904266
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 470904265}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1021.7631, y: 622.9804, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &470904267
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 470904265}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 46823acd94e86fc409e37bce80e759ad, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LacelSystem
-  installer: {fileID: 11400000, guid: f4ed0b2a2c722114382d1f6efcdd4ca3, type: 2}
 --- !u!1001 &516728219
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4077,6 +4028,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1368897921}
   - component: {fileID: 1368897922}
+  - component: {fileID: 1368897923}
   m_Layer: 0
   m_Name: CameraPoint
   m_TagString: Untagged
@@ -4092,14 +4044,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1368897920}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.11927039, y: 0, z: 0, w: 0.9928618}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 31.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 330585546}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 13.7, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1368897922
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4114,6 +4066,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FollowObject
   target: {fileID: 44800712}
   offset: {x: 0, y: 0, z: 0}
+--- !u!114 &1368897923
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1368897920}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be617191e4923094c86b09343da1ba1a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CamCtl
+  Target: {fileID: 1368897921}
+  Camera: {fileID: 330585545}
+  ZoomSpeed: 15
+  CameraSpeed: {x: 36, y: 12}
+  MinZoom: 0.1
+  MaxZoom: 15
 --- !u!1001 &1381305247
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4464,7 +4434,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1630618893}
   - component: {fileID: 1630618894}
-  - component: {fileID: 1630618895}
   m_Layer: 0
   m_Name: ScriptHolder
   m_TagString: Untagged
@@ -4507,18 +4476,6 @@ MonoBehaviour:
   jumpDelay: 0.1
   playerBottom: {fileID: 1756050456}
   maxJumpCount: 1
---- !u!114 &1630618895
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1630618892}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: be617191e4923094c86b09343da1ba1a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CamCtl
 --- !u!4 &1668602242 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 9192594046179835071, guid: 9a4b23f0edb066d4781651e506e41a95, type: 3}
@@ -5634,4 +5591,3 @@ SceneRoots:
   - {fileID: 1340847570}
   - {fileID: 1193418538}
   - {fileID: 1954551093}
-  - {fileID: 470904266}

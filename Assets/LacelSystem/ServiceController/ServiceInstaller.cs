@@ -9,7 +9,8 @@ namespace LacelSDK
     public class ServiceInstaller : ScriptableObject
     {
         [Searchable]
-        [SerializeField] private List<ScriptableObject> services;
+        [SerializeField] private List<LacelService> services;
+        public List<LacelService> ServiceList => services;
 
         public void Install()
         {

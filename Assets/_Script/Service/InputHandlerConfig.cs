@@ -1,16 +1,8 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
-public class InputHandlerConfig : MonoBehaviour
+[CreateAssetMenu(fileName = "InputHandlerConfig", menuName = "Configs/InputHandlerConfig")]
+public class InputHandlerConfig : ScriptableObject
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    public InputActionAsset inputActions;
 }

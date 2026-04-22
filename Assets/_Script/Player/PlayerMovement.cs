@@ -7,33 +7,29 @@ public class PlayerMovement : MonoBehaviour
     public float WalkSpeed = 5f;
     public float JumpForce = 5f;
     public float RotateSpeed = 5f;
-    public Vector2 CameraSpeed = new Vector2(20f, 5f);
     public Rigidbody rb;
 
     #region  Input actions
-    public InputActionAsset InputActions;
+    private InputActionAsset InputActions;
     private InputAction m_moveAction;
     private InputAction m_jumpAction;
-    private InputAction m_lookAction;
+
     private Vector2 m_moveAmt;
-    private Vector2 m_lookAmt;
+
     #endregion
     public bool useCinemachine = false;
     [Header("References")]
-    [SerializeField]
-    private Camera mainCamera;
-    [SerializeField]
-    private Transform cameraPoint;
+
     [SerializeField]
     private Transform cameraCinemachine;
     [SerializeField]
     private Transform headPoint;
     [SerializeField]
     private JumpCtl jumpCtl;
-        [SerializeField]
+    [SerializeField]
     private CamCtl camCtl;
 
-    private Vector3 cameraRotation = Vector3.zero;
+
 
     private void OnEnable()
     {
@@ -47,19 +43,19 @@ public class PlayerMovement : MonoBehaviour
 
     private void Awake()
     {
+        InputActions = Services.InputService.GetInputActions();
         m_moveAction = InputActions.FindAction("Move");
         m_jumpAction = InputActions.FindAction("Jump");
-        m_lookAction = InputActions.FindAction("Look");
+
 
         if (!rb) rb = GetComponent<Rigidbody>();
         jumpCtl.Init(rb);
-        camCtl.Init(InputActions);
     }
 
     private void Update()
     {
         m_moveAmt = m_moveAction.ReadValue<Vector2>();
-        m_lookAmt = m_lookAction.ReadValue<Vector2>();
+
 
         if (m_jumpAction.IsPressed())
         {
@@ -75,7 +71,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void Rotating()
     {
-        RotateCamera();
+        camCtl.RotateCamera();
         RotatePlayer();
     }
 
@@ -93,17 +89,7 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    private void RotateCamera()
-    {
-        if (IsTouchOverUI()) return;
-        float horizontalRotationAmount = m_lookAmt.x * CameraSpeed.x * Time.fixedDeltaTime;
-        float verticalRotationAmount = m_lookAmt.y * CameraSpeed.y * Time.fixedDeltaTime;
 
-        cameraRotation.x += verticalRotationAmount;
-        cameraRotation.y += horizontalRotationAmount;
-        cameraRotation.x = Mathf.Clamp(cameraRotation.x, -90f, 90f);
-        cameraPoint.rotation = Quaternion.Euler(cameraRotation);
-    }
 
     private void Moving()
     {
@@ -117,26 +103,15 @@ public class PlayerMovement : MonoBehaviour
 
     private Vector3 GetCameraFowardVector2()
     {
-        Vector3 forward = useCinemachine ? headPoint.position - cameraCinemachine.position : cameraPoint.forward;
+        Vector3 forward = useCinemachine ? headPoint.position - cameraCinemachine.position : camCtl.Target.forward;
         forward.y = 0;
         return forward.normalized;
     }
 
     private Vector3 GetCameraRightVector2()
     {
-        Vector3 right = useCinemachine ? Vector3.Cross(Vector3.up, headPoint.position - cameraCinemachine.position) : cameraPoint.right;
+        Vector3 right = useCinemachine ? Vector3.Cross(Vector3.up, headPoint.position - cameraCinemachine.position) : camCtl.Target.right;
         right.y = 0;
         return right.normalized;
-    }
-
-    private bool IsTouchOverUI()
-    {
-        if (Touchscreen.current == null) return false;
-        var touch = Touchscreen.current.primaryTouch;
-
-        if (!touch.press.isPressed)
-            return false;
-
-        return EventSystem.current.IsPointerOverGameObject(touch.touchId.ReadValue());
     }
 }

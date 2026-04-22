@@ -145,6 +145,33 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Finger1Delta"",
+                    ""type"": ""Value"",
+                    ""id"": ""664cda11-f139-4db0-b7a0-924a4a247751"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Finger2Delta"",
+                    ""type"": ""Value"",
+                    ""id"": ""16cc845c-0cc3-4f19-b9a8-82d68a3a4db1"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Zoom"",
+                    ""type"": ""Value"",
+                    ""id"": ""c252deec-62b2-44ce-a903-107969f591e2"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -290,6 +317,39 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""action"": ""SecondaryTouchContact"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""7a9495ee-f9cc-4d16-bcdd-8f3af93ab9ea"",
+                    ""path"": ""<Touchscreen>/touch0/delta"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Finger1Delta"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""5eb0b24e-c8ad-4692-9711-a40ee8d279bc"",
+                    ""path"": ""<Touchscreen>/touch1/delta"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Finger2Delta"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b05209da-e0e8-444d-a3bd-1e03c7088191"",
+                    ""path"": ""<Mouse>/scroll"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard"",
+                    ""action"": ""Zoom"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -315,6 +375,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_Player_Finger2 = m_Player.FindAction("Finger2", throwIfNotFound: true);
         m_Player_Look = m_Player.FindAction("Look", throwIfNotFound: true);
         m_Player_SecondaryTouchContact = m_Player.FindAction("SecondaryTouchContact", throwIfNotFound: true);
+        m_Player_Finger1Delta = m_Player.FindAction("Finger1Delta", throwIfNotFound: true);
+        m_Player_Finger2Delta = m_Player.FindAction("Finger2Delta", throwIfNotFound: true);
+        m_Player_Zoom = m_Player.FindAction("Zoom", throwIfNotFound: true);
     }
 
     ~@PlayerInput()
@@ -401,6 +464,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Finger2;
     private readonly InputAction m_Player_Look;
     private readonly InputAction m_Player_SecondaryTouchContact;
+    private readonly InputAction m_Player_Finger1Delta;
+    private readonly InputAction m_Player_Finger2Delta;
+    private readonly InputAction m_Player_Zoom;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -436,6 +502,18 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/SecondaryTouchContact".
         /// </summary>
         public InputAction @SecondaryTouchContact => m_Wrapper.m_Player_SecondaryTouchContact;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/Finger1Delta".
+        /// </summary>
+        public InputAction @Finger1Delta => m_Wrapper.m_Player_Finger1Delta;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/Finger2Delta".
+        /// </summary>
+        public InputAction @Finger2Delta => m_Wrapper.m_Player_Finger2Delta;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/Zoom".
+        /// </summary>
+        public InputAction @Zoom => m_Wrapper.m_Player_Zoom;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -480,6 +558,15 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @SecondaryTouchContact.started += instance.OnSecondaryTouchContact;
             @SecondaryTouchContact.performed += instance.OnSecondaryTouchContact;
             @SecondaryTouchContact.canceled += instance.OnSecondaryTouchContact;
+            @Finger1Delta.started += instance.OnFinger1Delta;
+            @Finger1Delta.performed += instance.OnFinger1Delta;
+            @Finger1Delta.canceled += instance.OnFinger1Delta;
+            @Finger2Delta.started += instance.OnFinger2Delta;
+            @Finger2Delta.performed += instance.OnFinger2Delta;
+            @Finger2Delta.canceled += instance.OnFinger2Delta;
+            @Zoom.started += instance.OnZoom;
+            @Zoom.performed += instance.OnZoom;
+            @Zoom.canceled += instance.OnZoom;
         }
 
         /// <summary>
@@ -509,6 +596,15 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @SecondaryTouchContact.started -= instance.OnSecondaryTouchContact;
             @SecondaryTouchContact.performed -= instance.OnSecondaryTouchContact;
             @SecondaryTouchContact.canceled -= instance.OnSecondaryTouchContact;
+            @Finger1Delta.started -= instance.OnFinger1Delta;
+            @Finger1Delta.performed -= instance.OnFinger1Delta;
+            @Finger1Delta.canceled -= instance.OnFinger1Delta;
+            @Finger2Delta.started -= instance.OnFinger2Delta;
+            @Finger2Delta.performed -= instance.OnFinger2Delta;
+            @Finger2Delta.canceled -= instance.OnFinger2Delta;
+            @Zoom.started -= instance.OnZoom;
+            @Zoom.performed -= instance.OnZoom;
+            @Zoom.canceled -= instance.OnZoom;
         }
 
         /// <summary>
@@ -617,5 +713,26 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnSecondaryTouchContact(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Finger1Delta" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnFinger1Delta(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Finger2Delta" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnFinger2Delta(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Zoom" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnZoom(InputAction.CallbackContext context);
     }
 }
