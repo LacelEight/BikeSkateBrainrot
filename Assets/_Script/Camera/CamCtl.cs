@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
@@ -105,25 +106,46 @@ public class CamCtl : MonoBehaviour
 
         Debug.Log("Zoom Detection Started");
 
-        while (true)
+        while (!cancellationToken.IsCancellationRequested)
         {
-            distance = Vector2.Distance(Touchscreen.current.touches[0].position.ReadValue(), Touchscreen.current.touches[1].position.ReadValue());
-
-            //if (IsOpposing())
-            if (distance > previousDistance)
+            try
             {
-                Debug.Log("Zooming In");
-                ZoomIn();
+                if (Services.InputService.IsTouchOverUI()) 
+                {
+                    await UniTask.Delay(10, cancellationToken: cancellationToken);
+                    continue;
+                }
+                if (Touchscreen.current.touches.Count < 2)
+                {
+                    await UniTask.Delay(10, cancellationToken: cancellationToken);
+                    continue;
+                }
 
+                distance = Vector2.Distance(Touchscreen.current.touches[0].position.ReadValue(), Touchscreen.current.touches[1].position.ReadValue());
+
+                //if (IsOpposing())
+                if (distance > previousDistance)
+                {
+                    Debug.Log("Zooming In");
+                    ZoomIn();
+
+                }
+                else if (distance < previousDistance)
+                {
+                    Debug.Log("Zooming Out");
+                    ZoomOut();
+
+                }
+                previousDistance = distance;
+                await UniTask.Yield(cancellationToken);
             }
-            else if (distance < previousDistance)
+            catch (OperationCanceledException)
             {
-                Debug.Log("Zooming Out");
-                ZoomOut();
-
+                break;
             }
-            previousDistance = distance;
         }
+
+        Debug.Log("Zoom Detection Ended");
     }
 
     private void ZoomCamera()
