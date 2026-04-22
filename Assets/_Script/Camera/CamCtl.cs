@@ -23,6 +23,7 @@ public class CamCtl : MonoBehaviour
     [Header("References")]
     public Transform Target;
     public Camera Camera;
+    public Transform cameraPivot;
     #endregion
 
     #region Settings
@@ -31,13 +32,25 @@ public class CamCtl : MonoBehaviour
     public Vector2 CameraSpeed = new Vector2(20f, 5f);
     public float MinZoom = 2f;
     public float MaxZoom = 10f;
+
+    public float TweenThreshold = 0.5f; // Minimum zoom change to trigger tween
+
+    private float maxCollisionZoom = 0f;
+    [Header("Collision Detection")]
+    public LayerMask CollisionLayers = -1; // Default: all layers
     #endregion
     private CancellationTokenSource cts;
     private bool isZooming = false;
     private float currentZoom = 5f;
     private Tween zoomTween;
+    private Tween collisionZoomTween;
     private float previousZoomDistance = 0f;
     private Vector3 cameraRotation = Vector3.zero;
+
+    // Collision detection
+    private bool hasCollision = false;
+    private float collisionDebounceTimer = 0f;
+    private const float COLLISION_DEBOUNCE = 0.02f;
 
     private void Awake()
     {
@@ -51,6 +64,7 @@ public class CamCtl : MonoBehaviour
         m_SecondaryTouchAction.started += StartZoom;
         m_SecondaryTouchAction.canceled += EndZoom;
 #endif
+        maxCollisionZoom = MaxZoom;
     }
     private void OnDestroy()
     {
@@ -69,6 +83,7 @@ public class CamCtl : MonoBehaviour
 #if UNITY_EDITOR
         ZoomCamera();
 #endif
+        CheckCollisionWithCamera();
     }
     private void StartZoom(InputAction.CallbackContext context)
     {
@@ -79,8 +94,13 @@ public class CamCtl : MonoBehaviour
         Vector2 touch0Pos = Touchscreen.current.touches[0].position.ReadValue();
         Vector2 touch1Pos = Touchscreen.current.touches[1].position.ReadValue();
 
-        if (Services.InputService.IsPointerOverUI(touch0Pos) || Services.InputService.IsPointerOverUI(touch1Pos))
-            return;
+        for (int i = 0; i < Touchscreen.current.touches.Count; i++)
+        {
+            Vector2 pos = Touchscreen.current.touches[i].position.ReadValue();
+            int id = Touchscreen.current.touches[i].touchId.ReadValue();
+            if (Services.InputService.IsPointerOverUI(pos) || id == Services.InputService.JoystickPointerId)
+                return;
+        }
 
         isZooming = true;
         cts = new CancellationTokenSource();
@@ -104,13 +124,14 @@ public class CamCtl : MonoBehaviour
     {
 #if UNITY_ANDROID || UNITY_IOS
         HandleTouchCamera();
-#else
+#endif
+#if UNITY_EDITOR
         HandleMouseCamera();
 #endif
     }
     private void HandleMouseCamera()
     {
-        if (Services.InputService.IsTouchOverUI()) return;
+        Debug.Log("Look Amount: " + m_lookAmt);
         float horizontalRotationAmount = m_lookAmt.x * CameraSpeed.x * Time.fixedDeltaTime;
         float verticalRotationAmount = m_lookAmt.y * CameraSpeed.y * Time.fixedDeltaTime;
 
@@ -133,6 +154,9 @@ public class CamCtl : MonoBehaviour
             if (!touch.press.isPressed) continue;
 
             Vector2 pos = touch.position.ReadValue();
+
+            int id = touch.touchId.ReadValue();
+            if (id == Services.InputService.JoystickPointerId) continue;
 
             if (Services.InputService.IsPointerOverUI(pos)) continue;
 
@@ -213,7 +237,7 @@ public class CamCtl : MonoBehaviour
     {
         Vector3 currentPos = Camera.transform.localPosition;
         float targetZ = currentPos.z + ZoomSpeed * Time.deltaTime;
-        targetZ = Mathf.Clamp(targetZ, -MaxZoom, -MinZoom);
+        targetZ = Mathf.Clamp(targetZ, -maxCollisionZoom, -MinZoom);
 
         zoomTween?.Kill();
         zoomTween = DOTween.To(() => Camera.transform.localPosition.z,
@@ -225,7 +249,7 @@ public class CamCtl : MonoBehaviour
     {
         Vector3 currentPos = Camera.transform.localPosition;
         float targetZ = currentPos.z - ZoomSpeed * Time.deltaTime;
-        targetZ = Mathf.Clamp(targetZ, -MaxZoom, -MinZoom);
+        targetZ = Mathf.Clamp(targetZ, -maxCollisionZoom, -MinZoom);
 
         zoomTween?.Kill();
         zoomTween = DOTween.To(() => Camera.transform.localPosition.z,
@@ -248,5 +272,102 @@ public class CamCtl : MonoBehaviour
 
         if (dot <= -0.8f) return true;
         return false;
+    }
+
+    private void CheckCollisionWithCamera()
+    {
+        // Update debounce timer
+        collisionDebounceTimer -= Time.deltaTime;
+
+        // Save camera position at first call or when debounce expires
+        if (!hasCollision)
+        {
+            cameraPivot.position = Camera.transform.position;
+        }
+
+        // Create raycast from target to SAVED camera position
+        Vector3 rayOrigin = Target.position;
+        Vector3 rayDirection = (cameraPivot.position - Target.position).normalized;
+        float rayDistance = Vector3.Distance(Target.position, cameraPivot.position);
+
+        // Perform raycast with specific layers
+        bool newCollision = Physics.Raycast(rayOrigin, rayDirection, out RaycastHit hit, rayDistance, CollisionLayers);
+        //Debug.DrawLine(rayOrigin, cameraPivot.position, hasCollision ? Color.red : Color.green);
+        // Only process state change when debounce is ready
+        if (collisionDebounceTimer > 0)
+            return;
+
+        // Check for collision state change
+        if (newCollision)
+        {
+            // Transition: no collision -> collision
+            float targetDistance = hit.distance - 0.1f;
+            targetDistance = Mathf.Max(targetDistance, MinZoom);
+            maxCollisionZoom = targetDistance;
+
+            hasCollision = true;
+            collisionDebounceTimer = COLLISION_DEBOUNCE;
+            Debug.Log($"Collision detected! Moving camera to distance {targetDistance:F2}");
+
+            // Smooth zoom to collision distance
+            SmoothMoveCamToPosition(targetDistance);
+            // collisionZoomTween?.Kill();
+            // collisionZoomTween = DOTween.To(
+            //     () => -Camera.transform.localPosition.z,
+            //     z => Camera.transform.localPosition = new Vector3(Camera.transform.localPosition.x, Camera.transform.localPosition.y, -z),
+            //     targetDistance,
+            //     0.2f)
+            //     .SetEase(Ease.OutCubic);
+        }
+        else if (!newCollision && hasCollision)
+        {
+            // Transition: collision -> no collision
+            float originalDistance = Vector3.Distance(Target.position, cameraPivot.position);
+            hasCollision = false;
+            collisionDebounceTimer = COLLISION_DEBOUNCE;
+            maxCollisionZoom = MaxZoom;
+
+            Debug.Log($"No collision, restoring camera to distance {originalDistance:F2}");
+            SmoothMoveCamToPosition(originalDistance);
+
+        }
+    }
+
+    private void SmoothMoveCamToPosition(float targetDistance)
+    {
+        if (targetDistance > TweenThreshold)
+        {
+            collisionZoomTween?.Kill();
+            collisionZoomTween = DOTween.To(
+                () => -Camera.transform.localPosition.z,
+                z => Camera.transform.localPosition = new Vector3(Camera.transform.localPosition.x, Camera.transform.localPosition.y, -z),
+                targetDistance,
+                0.2f)
+                .SetEase(Ease.OutCubic);
+            return;
+        }
+        // If change is small, snap directly without tween
+        Camera.transform.localPosition = new Vector3(Camera.transform.localPosition.x, Camera.transform.localPosition.y, -targetDistance);
+    }
+
+    public void OnDrawGizmos()
+    {
+        if (Target == null || cameraPivot == null) return;
+
+        Vector3 origin = Target.position;
+        Vector3 dir = (cameraPivot.position - Target.position).normalized;
+        float dist = Vector3.Distance(origin, cameraPivot.position);
+
+        Gizmos.color = Color.green;
+        Gizmos.DrawLine(origin, origin + dir * dist);
+
+        if (Physics.Raycast(origin, dir, out RaycastHit hit, dist, CollisionLayers))
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawSphere(hit.point, 0.2f);
+        }
+
+        Gizmos.color = Color.blue;
+        Gizmos.DrawSphere(cameraPivot.position, 0.2f);
     }
 }
