@@ -33,12 +33,16 @@ public class CamCtl : MonoBehaviour
     public float MinZoom = 2f;
     public float MaxZoom = 10f;
 
-    public float TweenThreshold = 0.5f; // Minimum zoom change to trigger tween
-
-    private float maxCollisionZoom = 0f;
-    [Header("Collision Detection")]
-    public LayerMask CollisionLayers = -1; // Default: all layers
     #endregion
+
+    #region Collision Detection Settings
+    [Header("Collision Detection")]
+    public float BufferDistance = 0.2f; // Minimum distance from collision point to keep camera
+    public float RayBuffer = 2f; // Additional distance for raycast to prevent clipping
+    public float TweenThreshold = 0.5f; // Minimum zoom change to trigger tween
+    public float GroundYBuffer = 1f;
+    private float maxCollisionZoom = 0f;
+    public LayerMask CollisionLayers = -1; // Default: all layers
     private CancellationTokenSource cts;
     private bool isZooming = false;
     private float currentZoom = 5f;
@@ -46,11 +50,11 @@ public class CamCtl : MonoBehaviour
     private Tween collisionZoomTween;
     private float previousZoomDistance = 0f;
     private Vector3 cameraRotation = Vector3.zero;
-
-    // Collision detection
     private bool hasCollision = false;
     private float collisionDebounceTimer = 0f;
-    private const float COLLISION_DEBOUNCE = 0.02f;
+    private const float COLLISION_DEBOUNCE = 0f;
+    private int groundLayer;
+    #endregion
 
     private void Awake()
     {
@@ -65,6 +69,8 @@ public class CamCtl : MonoBehaviour
         m_SecondaryTouchAction.canceled += EndZoom;
 #endif
         maxCollisionZoom = MaxZoom;
+
+        groundLayer = LayerMask.NameToLayer("Ground");
     }
     private void OnDestroy()
     {
@@ -83,6 +89,10 @@ public class CamCtl : MonoBehaviour
 #if UNITY_EDITOR
         ZoomCamera();
 #endif
+    }
+
+    private void LateUpdate()
+    {
         CheckCollisionWithCamera();
     }
     private void StartZoom(InputAction.CallbackContext context)
@@ -235,6 +245,7 @@ public class CamCtl : MonoBehaviour
     }
     private void ZoomIn()
     {
+        cameraPivot.position = Camera.transform.position;
         Vector3 currentPos = Camera.transform.localPosition;
         float targetZ = currentPos.z + ZoomSpeed * Time.deltaTime;
         targetZ = Mathf.Clamp(targetZ, -maxCollisionZoom, -MinZoom);
@@ -289,35 +300,40 @@ public class CamCtl : MonoBehaviour
         Vector3 rayOrigin = Target.position;
         Vector3 rayDirection = (cameraPivot.position - Target.position).normalized;
         float rayDistance = Vector3.Distance(Target.position, cameraPivot.position);
+        rayDistance += RayBuffer; // Add buffer to prevent clipping into objects
 
         // Perform raycast with specific layers
-        bool newCollision = Physics.Raycast(rayOrigin, rayDirection, out RaycastHit hit, rayDistance, CollisionLayers);
-        //Debug.DrawLine(rayOrigin, cameraPivot.position, hasCollision ? Color.red : Color.green);
+        //bool newCollision = Physics.Raycast(rayOrigin, rayDirection, out RaycastHit hit, rayDistance, CollisionLayers);
+
+        bool newCollision = Physics.SphereCast(rayOrigin, 0.3f, rayDirection, out RaycastHit hit, rayDistance, CollisionLayers);
+
         // Only process state change when debounce is ready
+
+        bool isGroundCollision = newCollision && hit.collider.gameObject.layer == groundLayer;
+
         if (collisionDebounceTimer > 0)
             return;
 
+        Vector3 direction = (cameraPivot.position - Target.position).normalized;
         // Check for collision state change
         if (newCollision)
         {
             // Transition: no collision -> collision
-            float targetDistance = hit.distance - 0.1f;
-            targetDistance = Mathf.Max(targetDistance, MinZoom);
+            float targetDistance = hit.distance - BufferDistance;
+            targetDistance = Mathf.Clamp(targetDistance, MinZoom, MaxZoom);
             maxCollisionZoom = targetDistance;
+
+            Vector3 targetPos = Target.position + direction * targetDistance;
+            Vector3 localTargetPos = Target.InverseTransformPoint(targetPos);
+            localTargetPos.z = -targetDistance;
 
             hasCollision = true;
             collisionDebounceTimer = COLLISION_DEBOUNCE;
-            Debug.Log($"Collision detected! Moving camera to distance {targetDistance:F2}");
+            //Debug.Log($"Collision detected! Moving camera to distance {targetDistance:F2}");
 
-            // Smooth zoom to collision distance
-            SmoothMoveCamToPosition(targetDistance);
-            // collisionZoomTween?.Kill();
-            // collisionZoomTween = DOTween.To(
-            //     () => -Camera.transform.localPosition.z,
-            //     z => Camera.transform.localPosition = new Vector3(Camera.transform.localPosition.x, Camera.transform.localPosition.y, -z),
-            //     targetDistance,
-            //     0.2f)
-            //     .SetEase(Ease.OutCubic);
+            //Smooth zoom to collision distance
+            //SmoothMoveCamToPosition(targetDistance, isGroundCollision ? GroundYBuffer : 0f);
+            SmoothMoveCamToPosition(localTargetPos, isGroundCollision);
         }
         else if (!newCollision && hasCollision)
         {
@@ -327,28 +343,42 @@ public class CamCtl : MonoBehaviour
             collisionDebounceTimer = COLLISION_DEBOUNCE;
             maxCollisionZoom = MaxZoom;
 
-            Debug.Log($"No collision, restoring camera to distance {originalDistance:F2}");
-            SmoothMoveCamToPosition(originalDistance);
-
+            //Debug.Log($"No collision, restoring camera to distance {originalDistance:F2}");
+            //SmoothMoveCamToPosition(originalDistance);
+            SmoothMoveCamToPosition(cameraPivot.localPosition);
         }
     }
 
-    private void SmoothMoveCamToPosition(float targetDistance)
+    private void SmoothMoveCamToPosition(Vector3 targetPos, bool isGroundCollision = false)
     {
-        if (targetDistance > TweenThreshold)
+        targetPos.y += isGroundCollision ? GroundYBuffer : 0f;
+
+        if (Vector3.Distance(Camera.transform.localPosition, targetPos) > TweenThreshold)
         {
             collisionZoomTween?.Kill();
-            collisionZoomTween = DOTween.To(
-                () => -Camera.transform.localPosition.z,
-                z => Camera.transform.localPosition = new Vector3(Camera.transform.localPosition.x, Camera.transform.localPosition.y, -z),
-                targetDistance,
-                0.2f)
-                .SetEase(Ease.OutCubic);
+            collisionZoomTween = Camera.transform.DOLocalMove(targetPos, 0.15f).SetEase(Ease.OutCubic);
             return;
         }
         // If change is small, snap directly without tween
-        Camera.transform.localPosition = new Vector3(Camera.transform.localPosition.x, Camera.transform.localPosition.y, -targetDistance);
+        Camera.transform.localPosition = targetPos;
     }
+
+    // private void SmoothMoveCamToPosition(float targetDistance, float yBuffer = 0f)
+    // {
+    //     if (targetDistance > TweenThreshold)
+    //     {
+    //         collisionZoomTween?.Kill();
+    //         collisionZoomTween = DOTween.To(
+    //             () => -Camera.transform.localPosition.z,
+    //             z => Camera.transform.localPosition = new Vector3(Camera.transform.localPosition.x, Camera.transform.localPosition.y + yBuffer, -z),
+    //             targetDistance,
+    //             0.15f)
+    //             .SetEase(Ease.OutCubic);
+    //         return;
+    //     }
+    //     // If change is small, snap directly without tween
+    //     Camera.transform.localPosition = new Vector3(Camera.transform.localPosition.x, Camera.transform.localPosition.y + yBuffer, -targetDistance);
+    // }
 
     public void OnDrawGizmos()
     {
@@ -357,7 +387,7 @@ public class CamCtl : MonoBehaviour
         Vector3 origin = Target.position;
         Vector3 dir = (cameraPivot.position - Target.position).normalized;
         float dist = Vector3.Distance(origin, cameraPivot.position);
-
+        dist += RayBuffer; // Add buffer to visualize raycast distance
         Gizmos.color = Color.green;
         Gizmos.DrawLine(origin, origin + dir * dist);
 
