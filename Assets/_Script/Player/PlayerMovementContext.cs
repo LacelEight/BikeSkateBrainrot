@@ -11,7 +11,6 @@ public class PlayerMovementContext
     public Transform headPoint;
     public Transform cameraCinemachine;
     public bool useCinemachine;
-
     private Vector2 currentMoveInput;
 
     public PlayerMovementContext(
@@ -52,7 +51,9 @@ public class PlayerMovementContext
         Vector3 cameraRight = GetCameraRightVector();
         cameraRight.y = 0;
 
+        Debug.Log($"Camera Forward: {cameraForward}, Camera Right: {cameraRight}");
         Vector3 moveDirection = (cameraForward * moveInput.y + cameraRight * moveInput.x).normalized;
+        Debug.Log($"Calculated Move Direction: {moveDirection} from Input: {moveInput}");
         return moveDirection;
     }
 

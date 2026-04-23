@@ -3,12 +3,12 @@ using UnityEngine;
 /// <summary>
 /// Manages state transitions for player movement
 /// </summary>
-public class PlayerMovementStateManager
+public class PlayerStateManager
 {
     private IPlayerMovementState currentState;
     private PlayerMovementContext context;
 
-    public PlayerMovementStateManager(PlayerMovementContext ctx)
+    public PlayerStateManager(PlayerMovementContext ctx)
     {
         context = ctx;
     }

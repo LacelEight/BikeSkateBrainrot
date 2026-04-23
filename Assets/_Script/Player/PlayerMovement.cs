@@ -1,10 +1,10 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerMovement : MonoBehaviour
+public class PlayerManager : MonoBehaviour
 {
     #region State Management
-    private PlayerMovementStateManager stateManager;
+    private PlayerStateManager stateManager;
     private WalkState walkState;
     private BikeRideState bikeRideState;
     [SerializeField] private bool isRidingBike = false;
@@ -42,6 +42,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private CamCtl camCtl;
     #endregion
 
+    private PlayerMovementContext playerContext;
 
 
     private void OnEnable()
@@ -64,7 +65,7 @@ public class PlayerMovement : MonoBehaviour
         jumpCtl.Init(rb);
 
         // Initialize state management
-        PlayerMovementContext context = new PlayerMovementContext(
+        playerContext = new PlayerMovementContext(
             rb,
             jumpCtl,
             camCtl,
@@ -72,9 +73,9 @@ public class PlayerMovement : MonoBehaviour
             cameraCinemachine,
             useCinemachine);
 
-        stateManager = new PlayerMovementStateManager(context);
-        walkState = new WalkState(context, WalkSpeed, WalkRotateSpeed);
-        bikeRideState = new BikeRideState(context, BikeSpeed, BikeRotateSpeed, BikeAcceleration);
+        stateManager = new PlayerStateManager(playerContext);
+        walkState = new WalkState(playerContext, WalkSpeed, WalkRotateSpeed);
+        bikeRideState = new BikeRideState(playerContext, BikeSpeed, BikeRotateSpeed, BikeAcceleration);
 
         // Start with walk state
         stateManager.Initialize(walkState);
@@ -94,6 +95,7 @@ public class PlayerMovement : MonoBehaviour
         // Pass input to current state
         bool jumpPressed = m_jumpAction.IsPressed();
         stateManager.HandleInput(m_moveAmt, jumpPressed);
+
     }
 
     private void FixedUpdate()
@@ -104,6 +106,7 @@ public class PlayerMovement : MonoBehaviour
         // Update movement via current state
         PlayerMovementContext context = GetCurrentContext();
         context.SetMoveInput(m_moveAmt);
+        Debug.Log($"Current Move Input: {m_moveAmt}");
         stateManager.PhysicsUpdate();
     }
 
@@ -144,12 +147,6 @@ public class PlayerMovement : MonoBehaviour
 
     private PlayerMovementContext GetCurrentContext()
     {
-        return new PlayerMovementContext(
-            rb,
-            jumpCtl,
-            camCtl,
-            headPoint,
-            cameraCinemachine,
-            useCinemachine);
+        return playerContext;
     }
 }
