@@ -1,33 +1,46 @@
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+
 public class PlayerMovement : MonoBehaviour
 {
-    [Header("Movement")]
-    public float WalkSpeed = 5f;
-    public float JumpForce = 5f;
-    public float RotateSpeed = 5f;
-    public Rigidbody rb;
+    #region State Management
+    private PlayerMovementStateManager stateManager;
+    private WalkState walkState;
+    private BikeRideState bikeRideState;
+    [SerializeField] private bool isRidingBike = false;
+    #endregion
 
-    #region  Input actions
+    #region Movement Settings
+    [Header("Walk Settings")]
+    public float WalkSpeed = 5f;
+    public float WalkRotateSpeed = 5f;
+
+    [Header("Bike Settings")]
+    public float BikeSpeed = 10f;
+    public float BikeRotateSpeed = 8f;
+    public float BikeAcceleration = 2f;
+
+    [Header("General")]
+    public float JumpForce = 5f;
+    public Rigidbody rb;
+    #endregion
+
+    #region Input Actions
     private InputActionAsset InputActions;
     private InputAction m_moveAction;
     private InputAction m_jumpAction;
-
     private Vector2 m_moveAmt;
-
     #endregion
-    public bool useCinemachine = false;
-    [Header("References")]
 
-    [SerializeField]
-    private Transform cameraCinemachine;
-    [SerializeField]
-    private Transform headPoint;
-    [SerializeField]
-    private JumpCtl jumpCtl;
-    [SerializeField]
-    private CamCtl camCtl;
+    #region References
+    public bool useCinemachine = false;
+
+    [Header("References")]
+    [SerializeField] private Transform cameraCinemachine;
+    [SerializeField] private Transform headPoint;
+    [SerializeField] private JumpCtl jumpCtl;
+    [SerializeField] private CamCtl camCtl;
+    #endregion
 
 
 
@@ -47,9 +60,24 @@ public class PlayerMovement : MonoBehaviour
         m_moveAction = InputActions.FindAction("Move");
         m_jumpAction = InputActions.FindAction("Jump");
 
-
         if (!rb) rb = GetComponent<Rigidbody>();
         jumpCtl.Init(rb);
+
+        // Initialize state management
+        PlayerMovementContext context = new PlayerMovementContext(
+            rb,
+            jumpCtl,
+            camCtl,
+            headPoint,
+            cameraCinemachine,
+            useCinemachine);
+
+        stateManager = new PlayerMovementStateManager(context);
+        walkState = new WalkState(context, WalkSpeed, WalkRotateSpeed);
+        bikeRideState = new BikeRideState(context, BikeSpeed, BikeRotateSpeed, BikeAcceleration);
+
+        // Start with walk state
+        stateManager.Initialize(walkState);
     }
 
     private void Update()
@@ -60,61 +88,68 @@ public class PlayerMovement : MonoBehaviour
         m_moveAmt = Services.InputService.JoystickInput;
 #endif
 
-        if (m_jumpAction.IsPressed())
-        {
-            jumpCtl.Jump();
-        }
+        // Handle state transitions
+        HandleStateTransitions();
+
+        // Pass input to current state
+        bool jumpPressed = m_jumpAction.IsPressed();
+        stateManager.HandleInput(m_moveAmt, jumpPressed);
     }
 
     private void FixedUpdate()
     {
-        Moving();
-        Rotating();
-    }
-
-    private void Rotating()
-    {
+        // Update camera rotation
         camCtl.RotateCamera();
-        RotatePlayer();
+
+        // Update movement via current state
+        PlayerMovementContext context = GetCurrentContext();
+        context.SetMoveInput(m_moveAmt);
+        stateManager.PhysicsUpdate();
     }
 
-    private void RotatePlayer()
+    /// <summary>
+    /// Handle transitions between walk and bike states
+    /// Override this method to add custom transition logic
+    /// </summary>
+    private void HandleStateTransitions()
     {
-        if (m_moveAmt.magnitude > 0)
-        {
-            Vector3 cameraForward = GetCameraFowardVector2();
-            Vector3 cameraRight = GetCameraRightVector2();
-            cameraRight.y = 0;
-            Vector3 moveDirection = (cameraForward * m_moveAmt.y + cameraRight * m_moveAmt.x).normalized;
-
-            Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
-            rb.MoveRotation(Quaternion.Lerp(rb.rotation, targetRotation, RotateSpeed * Time.fixedDeltaTime));
-        }
+        // Example: Switch to bike when pressing a key (customize as needed)
+        // if (Input.GetKeyDown(KeyCode.B))
+        // {
+        //     SwitchToBikeState();
+        // }
+        // if (Input.GetKeyDown(KeyCode.W))
+        // {
+        //     SwitchToWalkState();
+        // }
     }
 
-
-
-    private void Moving()
+    #region Public State Control Methods
+    public void SwitchToWalkState()
     {
-        //Debug.Log("moveAmt value: " + m_moveAmt);
-        Vector3 cameraForward = GetCameraFowardVector2();
-        Vector3 cameraRight = GetCameraRightVector2();
-        cameraRight.y = 0;
-        Vector3 movement = (cameraForward * m_moveAmt.y + cameraRight * m_moveAmt.x) * WalkSpeed * Time.fixedDeltaTime;
-        rb.MovePosition(rb.position + movement);
+        isRidingBike = false;
+        stateManager.SwitchState(walkState);
     }
 
-    private Vector3 GetCameraFowardVector2()
+    public void SwitchToBikeState()
     {
-        Vector3 forward = useCinemachine ? headPoint.position - cameraCinemachine.position : camCtl.Target.forward;
-        forward.y = 0;
-        return forward.normalized;
+        isRidingBike = true;
+        stateManager.SwitchState(bikeRideState);
     }
 
-    private Vector3 GetCameraRightVector2()
+    public bool IsRidingBike() => isRidingBike;
+
+    public IPlayerMovementState GetCurrentMovementState() => stateManager.GetCurrentState();
+    #endregion
+
+    private PlayerMovementContext GetCurrentContext()
     {
-        Vector3 right = useCinemachine ? Vector3.Cross(Vector3.up, headPoint.position - cameraCinemachine.position) : camCtl.Target.right;
-        right.y = 0;
-        return right.normalized;
+        return new PlayerMovementContext(
+            rb,
+            jumpCtl,
+            camCtl,
+            headPoint,
+            cameraCinemachine,
+            useCinemachine);
     }
 }
