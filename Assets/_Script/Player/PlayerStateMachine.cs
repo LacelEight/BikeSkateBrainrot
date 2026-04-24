@@ -33,6 +33,16 @@ public class PlayerStateMachine : MonoBehaviour
         }
     }
 
+    public void InitializeState(PlayerStateEnum stateName)
+    {
+        if (States.TryGetValue(stateName, out PlayerState state))
+        {
+            SwitchState(state);
+            return;
+        }
+        Debug.LogError($"State {stateName} not found in state machine.");
+    }
+
     public void SwitchState(PlayerStateEnum stateName)
     {
         if (States.TryGetValue(stateName, out PlayerState newState))
@@ -40,6 +50,6 @@ public class PlayerStateMachine : MonoBehaviour
             SwitchState(newState);
             return;
         }
-        Debug.LogWarning($"State {stateName} not found in state machine.");
+        Debug.LogError($"State {stateName} not found in state machine.");
     }
 }

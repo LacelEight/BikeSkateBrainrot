@@ -1,0 +1,24 @@
+{
+  "name": "MonoBehaviour Dark",
+  "colors": {
+    "editor.background": "#1e1e1e",
+    "editor.foreground": "#d4d4d4"
+  },
+  "tokenColors": [
+    {
+      "name": "MonoBehaviour Lifecycle Methods",
+      "scope": "entity.name.function.monobehaviour.lifecycle",
+      "settings": {
+        "foreground": "#569cd6",
+        "fontStyle": "bold"
+      }
+    },
+    {
+      "name": "MonoBehaviour Custom Methods",
+      "scope": "entity.name.function.monobehaviour.custom",
+      "settings": {
+        "foreground": "#dcdcaa"
+      }
+    }
+  ]
+}

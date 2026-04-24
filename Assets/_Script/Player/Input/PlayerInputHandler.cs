@@ -8,16 +8,6 @@ public class PlayerInputHandler : MonoBehaviour
     private InputAction m_jumpAction;
     private Vector2 m_moveAmt;
 
-    public Vector2 GetMoveInput()
-    {
-        return m_moveAmt;
-    }
-
-    public bool IsJumpPressing()
-    {
-        return m_jumpAction.IsPressed();
-    }
-
     private void Awake()
     {
         InputActions = Services.InputService.GetInputActions();
@@ -26,6 +16,16 @@ public class PlayerInputHandler : MonoBehaviour
 
         m_moveAction.performed += OnMovePerformed;
         m_moveAction.canceled += OnMoveCanceled;
+    }
+
+    private void OnEnable()
+    {
+        InputActions.FindActionMap("Player").Enable();
+    }
+
+    private void OnDisable()
+    {
+        InputActions.FindActionMap("Player").Disable();
     }
 
     private void OnDestroy()
@@ -46,7 +46,22 @@ public class PlayerInputHandler : MonoBehaviour
 
     private void Update()
     {
+#if UNITY_EDITOR
+        m_moveAmt = m_moveAction.ReadValue<Vector2>();
+#else
+        m_moveAmt = Services.InputService.JoystickInput;
+#endif
+    }
 
+
+    public Vector2 GetMoveInput()
+    {
+        return m_moveAmt;
+    }
+
+    public bool IsJumpPressing()
+    {
+        return m_jumpAction.IsPressed();
     }
 
 }

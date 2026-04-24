@@ -1,0 +1,42 @@
+{
+  "name": "monobehaviour-highlighter",
+  "displayName": "MonoBehaviour Highlighter",
+  "description": "Highlights Unity MonoBehaviour lifecycle methods with custom colors",
+  "version": "1.0.0",
+  "engines": {
+    "vscode": "^1.70.0"
+  },
+  "activationEvents": [
+    "onLanguage:csharp"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "semanticTokenTypes": [
+      {
+        "id": "monobehaviourMethod",
+        "description": "MonoBehaviour lifecycle method"
+      },
+      {
+        "id": "customMethod",
+        "description": "Custom method in MonoBehaviour"
+      }
+    ],
+    "semanticTokenModifiers": [
+      {
+        "id": "lifecycle",
+        "description": "Lifecycle method"
+      },
+      {
+        "id": "callback",
+        "description": "Event callback method"
+      }
+    ],
+    "themes": [
+      {
+        "label": "MonoBehaviour Dark",
+        "uiTheme": "vs-dark",
+        "path": "./themes/monobehaviour-dark.json"
+      }
+    ]
+  }
+}

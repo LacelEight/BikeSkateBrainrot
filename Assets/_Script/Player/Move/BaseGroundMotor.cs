@@ -5,6 +5,7 @@ public class BaseGroundMotor : IMotor
     public virtual void Move(MotorContext ctx)
     {
         Vector3 movement = ctx.MoveDirection * ctx.MoveSpeed * Time.fixedDeltaTime;
+        Debug.Log("Direction: " + ctx.MoveDirection);
         ctx.Rb.MovePosition(ctx.Rb.position + movement);
     }
 

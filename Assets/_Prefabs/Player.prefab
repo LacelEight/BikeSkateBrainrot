@@ -796,7 +796,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2843780032654927413}
-  - component: {fileID: 3534768801550056993}
+  - component: {fileID: 8474556163914604746}
   m_Layer: 0
   m_Name: ScriptHolder
   m_TagString: Untagged
@@ -819,7 +819,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 4045836180177684158}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3534768801550056993
+--- !u!114 &8474556163914604746
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -828,17 +828,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 2494817152049655632}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 005734b0ae5c6744785625ae75b58017, type: 3}
+  m_Script: {fileID: 11500000, guid: 7d4e3c85896d44c4c9671eee7dd202ed, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::JumpCtl
-  JumpForce: 5
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 8
-  groundCheckDistance: 0.5
-  jumpDelay: 0.1
-  playerBottom: {fileID: 623883301449210979}
-  maxJumpCount: 1
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInputHandler
 --- !u!1 &2697276902108795292
 GameObject:
   m_ObjectHideFlags: 0
@@ -854,7 +846,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1558425438970659474
 Transform:
   m_ObjectHideFlags: 0
@@ -3267,18 +3259,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e91bcddf9003c247bb394997fafdbe7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
-  isRidingBike: 0
-  WalkSpeed: 5
-  WalkRotateSpeed: 5
-  BikeSpeed: 10
-  BikeRotateSpeed: 8
-  BikeAcceleration: 2
-  JumpForce: 5
-  rb: {fileID: 9064445838200555399}
+  playerStates:
+  - {fileID: 11400000, guid: 7e9efcaa9de21ad4cb59995f2cfe3b46, type: 2}
+  - {fileID: 11400000, guid: 221cc5e98c19298448f34c09e326b973, type: 2}
+  - {fileID: 11400000, guid: 84ffa02ec1f976a49ab0c6efdf0cfe41, type: 2}
+  - {fileID: 11400000, guid: 6aa33f1375fb3ad49ae6fcd1c490d744, type: 2}
+  - {fileID: 11400000, guid: 1e885674b45527b4ab24bf00324cbb3a, type: 2}
+  - {fileID: 11400000, guid: da32f523d0322d74f8a93ce3ac4865ec, type: 2}
+  InputHandler: {fileID: 8474556163914604746}
+  Animator: {fileID: 1339644533988873648}
+  Transform: {fileID: 0}
+  PlayerBottom: {fileID: 623883301449210979}
+  Rb: {fileID: 9064445838200555399}
   useCinemachine: 1
   cameraCinemachine: {fileID: 0}
   headPoint: {fileID: 5748555922160516662}
-  jumpCtl: {fileID: 3534768801550056993}
+  jumpCtl: {fileID: 0}
   camCtl: {fileID: 0}
 --- !u!1 &7993465921981314711
 GameObject:

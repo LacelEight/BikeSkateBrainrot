@@ -1,16 +1,55 @@
+using System;
 using UnityEngine;
 
-public class BikeMoveState : MonoBehaviour
+namespace Player.States
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    [CreateAssetMenu(fileName = "BikeMoveState", menuName = "Player/States/BikeMove")]
+    public class BikeMoveState : PlayerState
     {
-        
-    }
+        [SerializeField]
+        private MoveConfig config;
+        private Vector2 moveInput;
+        private IMotor motor;
+        private MotorContext context;
+        public override void OnEnter()
+        {
+            motor = new BikeMotor();
+            context = new MotorContext(config.MoveSpeed, config.RotateSpeed, manager.Rb);
+        }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+        public override void OnExit()
+        {
+        }
+
+        public override void PhysicsUpdate()
+        {
+            if (moveInput.magnitude > 0.1f)
+            {
+                context.MoveDirection = manager.GetMovementDirection(moveInput);
+                context.MoveInput = moveInput;
+                motor.Move(context);
+                motor.Rotate(context);
+            }
+        }
+
+        public override void Update()
+        {
+            HandleInput();
+        }
+
+        private void HandleInput()
+        {
+            moveInput = manager.InputHandler.GetMoveInput();
+
+            if (moveInput.magnitude <= 0.1f)
+            {
+                stateMachine.SwitchState(PlayerStateEnum.BikeIdle);
+            }
+
+            if (manager.InputHandler.IsJumpPressing())
+            {
+                stateMachine.SwitchState(PlayerStateEnum.BikeJump);
+            }
+        }
     }
 }

@@ -5958,13 +5958,17 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1368897923}
     - target: {fileID: 1386962463143579603, guid: 7d34b11d901b51440bbf2320839830eb, type: 3}
+      propertyPath: jumpCtl
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1386962463143579603, guid: 7d34b11d901b51440bbf2320839830eb, type: 3}
+      propertyPath: useCinemachine
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1386962463143579603, guid: 7d34b11d901b51440bbf2320839830eb, type: 3}
       propertyPath: cameraCinemachine
       value: 
       objectReference: {fileID: 1193418538}
-    - target: {fileID: 2697276902108795292, guid: 7d34b11d901b51440bbf2320839830eb, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 4045836180177684158, guid: 7d34b11d901b51440bbf2320839830eb, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0

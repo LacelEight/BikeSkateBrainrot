@@ -1,31 +1,23 @@
 using System;
-using Cysharp.Threading.Tasks;
-using Player.States;
 using UnityEngine;
 
 namespace Player.States
 {
-    [CreateAssetMenu(fileName = "JumpState", menuName = "Player/States/Jump")]
-    public class JumpState : PlayerState
+    [CreateAssetMenu(fileName = "BikeJumpState", menuName = "Player/States/BikeJump")]
+    public class BikeJumpState : PlayerState
     {
         [SerializeField]
         private JumpConfig config;
         [SerializeField]
         private MoveConfig moveConfig;
-        private bool isGrounded;
-        private int crrJumpCount = 0;
         private IJump jumpController;
         private JumpControllerCtx context;
         private Vector2 moveInput;
         private IMotor motor;
         private MotorContext moveContext;
-
         public override void OnEnter()
         {
-            jumpController = new FootJump();
-            motor = new FootMotor();
-            moveContext = new MotorContext(moveConfig.MoveSpeed, moveConfig.RotateSpeed, manager.Rb);
-
+            jumpController = new BikeJump();
             context = new JumpControllerCtx(manager.PlayerBottom.position, config.GroundLayer, config.GroundCheckDistance,
             config.maxJumpCount, config.JumpForce, manager.Rb, config.JumpInterval, OnLand);
         }
@@ -53,8 +45,8 @@ namespace Player.States
 
         public override void Update()
         {
-            jumpController.IsGrounded(context);
             HandleInput();
+            jumpController.IsGrounded(context);
         }
 
         private void HandleInput()
@@ -64,7 +56,7 @@ namespace Player.States
 
         private void OnLand()
         {
-            stateMachine.SwitchState(moveInput.magnitude > 0.1f ? PlayerStateEnum.Walk : PlayerStateEnum.Idle);
+            stateMachine.SwitchState(moveInput.magnitude > 0.1f ? PlayerStateEnum.BikeRide : PlayerStateEnum.BikeIdle);
         }
     }
 }

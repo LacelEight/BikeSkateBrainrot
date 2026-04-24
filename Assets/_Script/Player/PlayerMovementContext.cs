@@ -44,17 +44,18 @@ public class PlayerMovementContext
     /// </summary>
     public Vector3 GetMovementDirection(Vector2 moveInput)
     {
-        if (moveInput.magnitude == 0)
-            return Vector3.zero;
+        // if (moveInput.magnitude == 0)
+        //     return Vector3.zero;
 
-        Vector3 cameraForward = GetCameraForwardVector();
-        Vector3 cameraRight = GetCameraRightVector();
-        cameraRight.y = 0;
+        // Vector3 cameraForward = GetCameraForwardVector();
+        // Vector3 cameraRight = GetCameraRightVector();
+        // cameraRight.y = 0;
 
-        Debug.Log($"Camera Forward: {cameraForward}, Camera Right: {cameraRight}");
-        Vector3 moveDirection = (cameraForward * moveInput.y + cameraRight * moveInput.x).normalized;
-        Debug.Log($"Calculated Move Direction: {moveDirection} from Input: {moveInput}");
-        return moveDirection;
+        // Debug.Log($"Camera Forward: {cameraForward}, Camera Right: {cameraRight}");
+        // Vector3 moveDirection = (cameraForward * moveInput.y + cameraRight * moveInput.x).normalized;
+        // Debug.Log($"Calculated Move Direction: {moveDirection} from Input: {moveInput}");
+        // return moveDirection;
+        return Vector3.zero;
     }
 
 

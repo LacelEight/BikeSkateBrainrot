@@ -9,7 +9,6 @@ namespace Player.States
     {
         public PlayerStateEnum Name;
         protected PlayerStateMachine stateMachine;
-
         protected PlayerManager manager;
         /// <summary>
         /// Called when entering this state
@@ -30,6 +29,12 @@ namespace Player.States
         /// Called during FixedUpdate to apply physics
         /// </summary>
         public abstract void PhysicsUpdate();
+
+        public virtual void Init(PlayerManager manager, PlayerStateMachine stateMachine)
+        {
+            this.manager = manager;
+            this.stateMachine = stateMachine;
+        }
     }
 
 }

@@ -6,18 +6,15 @@ namespace Player.States
     public class WalkState : PlayerState
     {
         [SerializeField]
-        private float WalkSpeed = 5f;
-        [SerializeField]
-        private float RotateSpeed = 5f;
+        private MoveConfig config;
         private Vector2 moveInput;
         private IMotor motor;
-
         private MotorContext context;
         public override void OnEnter()
         {
             motor = new FootMotor();
 
-            context = new MotorContext(WalkSpeed, RotateSpeed, manager.Rb);
+            context = new MotorContext(config.MoveSpeed, config.RotateSpeed, manager.Rb);
         }
 
         public override void OnExit()
