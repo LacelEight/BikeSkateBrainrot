@@ -1,68 +1,61 @@
+using System;
 using UnityEngine;
-
-/// <summary>
-/// Walking state - normal movement on foot
-/// </summary>
-public class WalkState : IPlayerMovementState
+namespace Player.States
 {
-    private PlayerMovementContext context;
-    private float walkSpeed = 5f;
-    private float rotateSpeed = 5f;
-
-    public WalkState(PlayerMovementContext ctx, float speed = 5f, float rotSpeed = 5f)
+    [CreateAssetMenu(fileName = "WalkState", menuName = "Player/States/Walk")]
+    public class WalkState : PlayerState
     {
-        context = ctx;
-        walkSpeed = speed;
-        rotateSpeed = rotSpeed;
-    }
+        [SerializeField]
+        private float WalkSpeed = 5f;
+        [SerializeField]
+        private float RotateSpeed = 5f;
+        private Vector2 moveInput;
+        private IMotor motor;
 
-    public void OnEnter()
-    {
-        // Play walk animation if needed
-        Debug.Log("Entered Walk State");
-    }
-
-    public void OnExit()
-    {
-        // Clean up walk state if needed
-    }
-
-    public void HandleInput(Vector2 moveInput, bool jumpPressed)
-    {
-        if (jumpPressed && CanJump())
+        private MotorContext context;
+        public override void OnEnter()
         {
-            context.jumpCtl.Jump();
+            motor = new FootMotor();
+
+            context = new MotorContext(WalkSpeed, RotateSpeed, manager.Rb);
+        }
+
+        public override void OnExit()
+        {
+
+        }
+
+        public override void PhysicsUpdate()
+        {
+            if (moveInput.magnitude > 0.1f)
+            {
+                context.MoveDirection = manager.GetMovementDirection(moveInput);
+                context.MoveInput = moveInput;
+                motor.Move(context);
+                motor.Rotate(context);
+            }
+        }
+
+        public override void Update()
+        {
+            HandleInput();
+        }
+
+        private void HandleInput()
+        {
+            moveInput = manager.InputHandler.GetMoveInput();
+            // Process move input to control player movement
+            if (moveInput.magnitude <= 0.1f)
+            {
+                // If input is negligible, switch to Idle state
+                stateMachine.SwitchState(PlayerStateEnum.Idle);
+            }
+
+            if (manager.InputHandler.IsJumpPressing())
+            {
+                stateMachine.SwitchState(PlayerStateEnum.Jump);
+            }
         }
     }
-
-    public void PhysicsUpdate()
-    {
-        Vector2 moveInput = context.GetMoveInput();
-        
-        // Rotate towards movement direction
-        RotatePlayer(moveInput);
-
-        // Apply movement
-        MovePlayer(moveInput);
-    }
-
-    private void RotatePlayer(Vector2 moveInput)
-    {
-        if (moveInput.magnitude > 0)
-        {
-            Vector3 moveDirection = context.GetMovementDirection(moveInput);
-            Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
-            context.rb.MoveRotation(Quaternion.Lerp(context.rb.rotation, targetRotation, rotateSpeed * Time.fixedDeltaTime));
-        }
-    }
-
-    private void MovePlayer(Vector2 moveInput)
-    {
-        Vector3 movement = context.GetMovementDirection(moveInput) * walkSpeed * Time.fixedDeltaTime;
-        context.rb.MovePosition(context.rb.position + movement);
-    }
-
-    public float GetSpeed() => walkSpeed;
-    public float GetRotationSpeed() => rotateSpeed;
-    public bool CanJump() => true;
 }
+

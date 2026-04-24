@@ -1,14 +1,29 @@
+using System;
+using Player.States;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerManager : MonoBehaviour
 {
+    public PlayerState IdleState;
+    public PlayerState JumpState;
+    public PlayerState WalkState;
+    public PlayerState BikeRideState;
+    public PlayerState BikeIdleState;
+    public PlayerState BikeJumpState;
+    public PlayerInputHandler InputHandler;
+    private PlayerState currentState;
+
+    public Transform Transform;
+
     #region State Management
     private PlayerStateManager stateManager;
     private WalkState walkState;
     private BikeRideState bikeRideState;
     [SerializeField] private bool isRidingBike = false;
     #endregion
+
+    public Transform PlayerBottom;
 
     #region Movement Settings
     [Header("Walk Settings")]
@@ -22,7 +37,7 @@ public class PlayerManager : MonoBehaviour
 
     [Header("General")]
     public float JumpForce = 5f;
-    public Rigidbody rb;
+    public Rigidbody Rb;
     #endregion
 
     #region Input Actions
@@ -60,13 +75,14 @@ public class PlayerManager : MonoBehaviour
         InputActions = Services.InputService.GetInputActions();
         m_moveAction = InputActions.FindAction("Move");
         m_jumpAction = InputActions.FindAction("Jump");
+        Transform = this.transform;
 
-        if (!rb) rb = GetComponent<Rigidbody>();
-        jumpCtl.Init(rb);
+        if (!Rb) Rb = GetComponent<Rigidbody>();
+        jumpCtl.Init(Rb);
 
         // Initialize state management
         playerContext = new PlayerMovementContext(
-            rb,
+            Rb,
             jumpCtl,
             camCtl,
             headPoint,
@@ -148,5 +164,63 @@ public class PlayerManager : MonoBehaviour
     private PlayerMovementContext GetCurrentContext()
     {
         return playerContext;
+    }
+
+    //New Player State Manager
+
+    private void Start()
+    {
+        InitializeState(IdleState);
+    }
+
+    public void InitializeState(PlayerState initialState)
+    {
+        currentState = initialState;
+        currentState.OnEnter();
+    }
+
+    public void SwitchState(PlayerState newState)
+    {
+        currentState?.OnExit();
+        currentState = newState;
+        newState.OnEnter();
+    }
+
+    public PlayerState GetCurrentState()
+    {
+        return currentState;
+    }
+
+    public Vector2 GetMovementDirection(Vector2 moveInput)
+    {
+        if (moveInput.magnitude == 0)
+            return Vector3.zero;
+
+        Vector3 cameraForward = GetCameraForwardVector();
+        Vector3 cameraRight = GetCameraRightVector();
+        cameraRight.y = 0;
+
+        Debug.Log($"Camera Forward: {cameraForward}, Camera Right: {cameraRight}");
+        Vector3 moveDirection = (cameraForward * moveInput.y + cameraRight * moveInput.x).normalized;
+        Debug.Log($"Calculated Move Direction: {moveDirection} from Input: {moveInput}");
+        return moveDirection;
+    }
+
+    private Vector3 GetCameraForwardVector()
+    {
+        Vector3 forward = useCinemachine
+            ? headPoint.position - cameraCinemachine.position
+            : camCtl.Target.forward;
+        forward.y = 0;
+        return forward.normalized;
+    }
+
+    private Vector3 GetCameraRightVector()
+    {
+        Vector3 right = useCinemachine
+            ? Vector3.Cross(Vector3.up, headPoint.position - cameraCinemachine.position)
+            : camCtl.Target.right;
+        right.y = 0;
+        return right.normalized;
     }
 }

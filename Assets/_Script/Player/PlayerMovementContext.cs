@@ -57,21 +57,5 @@ public class PlayerMovementContext
         return moveDirection;
     }
 
-    private Vector3 GetCameraForwardVector()
-    {
-        Vector3 forward = useCinemachine 
-            ? headPoint.position - cameraCinemachine.position 
-            : camCtl.Target.forward;
-        forward.y = 0;
-        return forward.normalized;
-    }
 
-    private Vector3 GetCameraRightVector()
-    {
-        Vector3 right = useCinemachine 
-            ? Vector3.Cross(Vector3.up, headPoint.position - cameraCinemachine.position) 
-            : camCtl.Target.right;
-        right.y = 0;
-        return right.normalized;
-    }
 }
