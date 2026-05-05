@@ -39,5 +39,15 @@ public class BikeMotor : BaseGroundMotor
             return;
 
         base.Rotate(ctx);
+
+        float signedAngle = Vector3.SignedAngle(
+            ctx.MoveDirection,
+            ctx.Rb.transform.forward,
+            Vector3.up
+        );
+
+        ctx.CurrentRotate = signedAngle;
+
+        Debug.Log("Signed Angle: " + signedAngle);
     }
 }

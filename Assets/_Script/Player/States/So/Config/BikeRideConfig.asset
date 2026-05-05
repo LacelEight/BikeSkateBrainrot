@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: BikeRideConfig
   m_EditorClassIdentifier: Assembly-CSharp::MoveConfig
   MoveSpeed: 10
-  RotateSpeed: 3
   Acceleration: 10
   Deceleration: 30
   MaxSpeed: 10
@@ -21,3 +20,4 @@ MonoBehaviour:
   MaxAcceleration: 20
   MinAcceleration: 0
   MaxDeceleration: 100
+  RotateSpeed: 2

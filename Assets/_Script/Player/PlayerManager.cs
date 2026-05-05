@@ -22,7 +22,7 @@ public class PlayerManager : MonoBehaviour
 
     /// <summary>Tốc độ tuyến tính hiện tại khi đi xe (m/s); dùng cho visual và coast khi idle.</summary>
     public float BikeLinearSpeed;
-
+    public float BikeRotate;
     #region References
     public bool useCinemachine = false;
 

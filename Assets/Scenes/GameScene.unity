@@ -4144,6 +4144,16 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1257040132}
   m_CullTransparentMesh: 1
+--- !u!4 &1260424650 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8794554184556987961, guid: 7d34b11d901b51440bbf2320839830eb, type: 3}
+  m_PrefabInstance: {fileID: 7750316783628803741}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &1260424651 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5253874214880932262, guid: 7d34b11d901b51440bbf2320839830eb, type: 3}
+  m_PrefabInstance: {fileID: 7750316783628803741}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1320964212
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6564,6 +6574,22 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: -19.821669
       objectReference: {fileID: 0}
+    - target: {fileID: 5253874214880932262, guid: 7d34b11d901b51440bbf2320839830eb, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5253874214880932262, guid: 7d34b11d901b51440bbf2320839830eb, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5253874214880932262, guid: 7d34b11d901b51440bbf2320839830eb, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5253874214880932262, guid: 7d34b11d901b51440bbf2320839830eb, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5407875716403040551, guid: 7d34b11d901b51440bbf2320839830eb, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.005111877
@@ -6816,6 +6842,26 @@ PrefabInstance:
       propertyPath: m_LocalPosition.y
       value: -0.9
       objectReference: {fileID: 0}
+    - target: {fileID: 8794554184556987961, guid: 7d34b11d901b51440bbf2320839830eb, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8794554184556987961, guid: 7d34b11d901b51440bbf2320839830eb, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8794554184556987961, guid: 7d34b11d901b51440bbf2320839830eb, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8794554184556987961, guid: 7d34b11d901b51440bbf2320839830eb, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8794554184556987961, guid: 7d34b11d901b51440bbf2320839830eb, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8812626221375585936, guid: 7d34b11d901b51440bbf2320839830eb, type: 3}
       propertyPath: m_LocalScale.x
       value: 1
@@ -6937,9 +6983,13 @@ MonoBehaviour:
   pedalCrankAxis: {fileID: 154850946}
   tireLeft: {fileID: 154850945}
   tireRight: {fileID: 154850947}
+  bikeHead: {fileID: 1260424651}
+  rendererRoot: {fileID: 1260424650}
   pedalLocalAxis: {x: 1, y: 0, z: 0}
   tireLeftLocalAxis: {x: 1, y: 0, z: 0}
   tireRightLocalAxis: {x: 1, y: 0, z: 0}
+  bikeHeadLocalAxis: {x: 0, y: 1, z: 0}
+  rendererRootLocalAxis: {x: 0, y: 0, z: 1}
   pedalDegPerSecondPerMeterPerSecond: 90
   tireDegPerSecondPerMeterPerSecond: 200
 --- !u!1 &7750316783628803746 stripped

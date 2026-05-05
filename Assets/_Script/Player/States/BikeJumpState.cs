@@ -15,9 +15,14 @@ namespace Player.States
         private Vector2 moveInput;
         private IMotor motor;
         private MotorContext moveContext;
+        private bool isGrounded = false;
         public override void OnEnter()
         {
             manager.Animator.SetTrigger("BikeJump");
+
+            motor = new BikeMotor();
+            moveContext = new MotorContext(moveConfig.MoveSpeed, moveConfig.RotateSpeed, manager.Rb);
+
             jumpController = new BikeJump();
             context = new JumpControllerCtx(manager.PlayerBottom, config.GroundLayer, config.GroundCheckDistance,
             config.maxJumpCount, config.JumpForce, manager.Rb, config.JumpInterval, OnLand);
@@ -41,13 +46,14 @@ namespace Player.States
                 moveContext.MoveInput = moveInput;
                 motor.Move(moveContext);
                 motor.Rotate(moveContext);
+                manager.BikeLinearSpeed = moveContext.CurrentSpeed;
             }
         }
 
         public override void Update()
         {
             HandleInput();
-            jumpController.IsGrounded(context);
+            isGrounded = jumpController.IsGrounded(context);
         }
 
         private void HandleInput()

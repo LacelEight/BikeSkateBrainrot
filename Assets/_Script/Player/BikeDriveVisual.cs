@@ -1,27 +1,32 @@
 using UnityEngine;
 
-/// <summary>
-/// Quay trục pedal và hai bánh theo tốc độ tuyến tính (m/s). Gán 3 Transform từ hierarchy xe.
-/// </summary>
 public class BikeDriveVisual : MonoBehaviour
 {
     [Header("Hierarchy")]
     [SerializeField] private Transform pedalCrankAxis;
     [SerializeField] private Transform tireLeft;
     [SerializeField] private Transform tireRight;
+    [SerializeField] private Transform bikeHead;
+    [SerializeField] private Transform rendererRoot;
 
     [Header("Local rotation axes (Space Self)")]
-    [SerializeField] private Vector3 pedalLocalAxis = Vector3.up;
+    [SerializeField] private Vector3 pedalLocalAxis = Vector3.right;
     [SerializeField] private Vector3 tireLeftLocalAxis = Vector3.right;
     [SerializeField] private Vector3 tireRightLocalAxis = Vector3.right;
+    [SerializeField] private Vector3 bikeHeadLocalAxis = Vector3.up;
+    [SerializeField] private Vector3 rendererRootLocalAxis = Vector3.forward;
 
     [Header("Speed mapping (deg/s per m/s)")]
-    [Tooltip("Góc quay crank: độ/giây trên mỗi m/s tốc độ xe.")]
+    [Tooltip("Crank speed: degrees/second per meter/second of bike speed.")]
     [SerializeField] private float pedalDegPerSecondPerMeterPerSecond = 90f;
-    [Tooltip("Góc quay bánh: độ/giây trên mỗi m/s (gần đúng lăn: ~360 / (2πr) độ cho mỗi mét).")]
+    [Tooltip("Tire speed: degrees/second per meter/second of bike speed.")]
     [SerializeField] private float tireDegPerSecondPerMeterPerSecond = 200f;
 
-    public void Step(float linearSpeedMetersPerSecond, float deltaTime)
+    [Header("Steering / lean smoothing")]
+    [Tooltip("Tốc độ làm mượt góc nghiêng (càng lớn càng bám target nhanh).")]
+    [SerializeField] private float steerSmoothing = 12f;
+
+    public void Step(float linearSpeedMetersPerSecond, float rotateDegrees, float deltaTime)
     {
         if (deltaTime <= 0f)
             return;
@@ -37,5 +42,29 @@ public class BikeDriveVisual : MonoBehaviour
 
         if (tireRight != null)
             tireRight.Rotate(tireRightLocalAxis.normalized, tireDelta, Space.Self);
+
+        RotateBike(rotateDegrees, deltaTime);
+    }
+
+    private void RotateBike(float rotateDegrees, float deltaTime)
+    {
+        float maxBikeRotate = 50f;
+        float maxRendererRootRotate = 30f;
+        float steerAngle = Mathf.Clamp(-rotateDegrees, -maxBikeRotate, maxBikeRotate);
+        float rendererRootSteerAngle = Mathf.Clamp(rotateDegrees / 3f, -maxRendererRootRotate, maxRendererRootRotate);
+
+        float t = 1f - Mathf.Exp(-steerSmoothing * deltaTime);
+
+        if (bikeHead != null)
+        {
+            Quaternion targetHead = Quaternion.Euler(bikeHeadLocalAxis * steerAngle);
+            bikeHead.localRotation = Quaternion.Slerp(bikeHead.localRotation, targetHead, t);
+        }
+
+        if (rendererRoot != null)
+        {
+            Quaternion targetRoot = Quaternion.Euler(rendererRootLocalAxis * rendererRootSteerAngle);
+            rendererRoot.localRotation = Quaternion.Slerp(rendererRoot.localRotation, targetRoot, t);
+        }
     }
 }

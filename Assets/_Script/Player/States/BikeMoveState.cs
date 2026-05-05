@@ -34,7 +34,8 @@ namespace Player.States
                 motor.Move(context);
                 motor.Rotate(context);
                 manager.BikeLinearSpeed = context.CurrentSpeed;
-                manager.BikeDriveVisual?.Step(manager.BikeLinearSpeed, Time.fixedDeltaTime);
+                manager.BikeRotate = context.CurrentRotate;
+                manager.BikeDriveVisual?.Step(manager.BikeLinearSpeed, manager.BikeRotate, Time.fixedDeltaTime);
             }
         }
 

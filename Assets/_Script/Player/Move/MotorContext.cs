@@ -14,6 +14,7 @@ public class MotorContext
 
     /// <summary>Tốc độ hiện tại sau bước tích phân (BikeMotor ghi vào mỗi Move).</summary>
     public float CurrentSpeed;
+    public float CurrentRotate;
 
     public Rigidbody Rb;
 

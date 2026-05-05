@@ -24,7 +24,8 @@ namespace Player.States
             float dt = Time.fixedDeltaTime;
             float decel = bikeMoveConfig != null ? bikeMoveConfig.Deceleration : 8f;
             manager.BikeLinearSpeed = Mathf.MoveTowards(manager.BikeLinearSpeed, 0f, decel * dt);
-            manager.BikeDriveVisual?.Step(manager.BikeLinearSpeed, dt);
+            manager.BikeRotate = 0f;
+            manager.BikeDriveVisual?.Step(manager.BikeLinearSpeed, manager.BikeRotate, dt);
         }
 
         public override void Update()
