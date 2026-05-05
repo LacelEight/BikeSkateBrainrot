@@ -15,6 +15,7 @@ public class PlayerStateMachine : MonoBehaviour
 
     public void SwitchState(PlayerState newState)
     {
+        Debug.LogError($"Switching state from {currentState?.Name} to {newState?.Name}");
         currentState?.OnExit();
         currentState = newState;
         currentState.OnEnter();

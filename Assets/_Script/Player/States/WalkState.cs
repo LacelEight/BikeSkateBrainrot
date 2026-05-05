@@ -12,8 +12,8 @@ namespace Player.States
         private MotorContext context;
         public override void OnEnter()
         {
+            manager.Animator.SetTrigger("Walk");
             motor = new FootMotor();
-
             context = new MotorContext(config.MoveSpeed, config.RotateSpeed, manager.Rb);
         }
 
@@ -27,6 +27,7 @@ namespace Player.States
             if (moveInput.magnitude > 0.1f)
             {
                 context.MoveDirection = manager.GetMovementDirection(moveInput);
+                Debug.Log("Context Direction: " + context.MoveDirection);
                 context.MoveInput = moveInput;
                 motor.Move(context);
                 motor.Rotate(context);

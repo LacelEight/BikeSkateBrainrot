@@ -141,7 +141,7 @@ public class CamCtl : MonoBehaviour
     }
     private void HandleMouseCamera()
     {
-        Debug.Log("Look Amount: " + m_lookAmt);
+        //Debug.Log("Look Amount: " + m_lookAmt);
         float horizontalRotationAmount = m_lookAmt.x * CameraSpeed.x * Time.fixedDeltaTime;
         float verticalRotationAmount = m_lookAmt.y * CameraSpeed.y * Time.fixedDeltaTime;
 

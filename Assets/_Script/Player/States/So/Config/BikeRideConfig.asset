@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ddbc2d16d9efbc54ebd26590b060ebcf, type: 3}
   m_Name: BikeRideConfig
   m_EditorClassIdentifier: Assembly-CSharp::MoveConfig
-  MoveSpeed: 5
-  RotateSpeed: 5
-  Acceleration: 2
-  Deceleration: 2
+  MoveSpeed: 10
+  RotateSpeed: 3
+  Acceleration: 10
+  Deceleration: 30
   MaxSpeed: 10
   MinSpeed: 0
-  MaxAcceleration: 10
+  MaxAcceleration: 20
   MinAcceleration: 0
-  MaxDeceleration: 10
+  MaxDeceleration: 100

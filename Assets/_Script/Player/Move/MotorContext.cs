@@ -7,6 +7,14 @@ public class MotorContext
     public Vector3 MoveDirection;
     public Vector2 MoveInput;
 
+    /// <summary>Giới hạn tốc độ khi có input đầy đủ. Nếu &lt;= 0 dùng <see cref="MoveSpeed"/>.</summary>
+    public float MaxSpeed;
+    public float Acceleration;
+    public float Deceleration;
+
+    /// <summary>Tốc độ hiện tại sau bước tích phân (BikeMotor ghi vào mỗi Move).</summary>
+    public float CurrentSpeed;
+
     public Rigidbody Rb;
 
     public MotorContext()

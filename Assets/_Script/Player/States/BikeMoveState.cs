@@ -13,6 +13,7 @@ namespace Player.States
         private MotorContext context;
         public override void OnEnter()
         {
+            manager.Animator.SetTrigger("BikeRun");
             motor = new BikeMotor();
             context = new MotorContext(config.MoveSpeed, config.RotateSpeed, manager.Rb);
         }
@@ -25,10 +26,15 @@ namespace Player.States
         {
             if (moveInput.magnitude > 0.1f)
             {
+                context.MaxSpeed = config.MaxSpeed > 0f ? config.MaxSpeed : config.MoveSpeed;
+                context.Acceleration = config.Acceleration;
+                context.Deceleration = config.Deceleration;
                 context.MoveDirection = manager.GetMovementDirection(moveInput);
                 context.MoveInput = moveInput;
                 motor.Move(context);
                 motor.Rotate(context);
+                manager.BikeLinearSpeed = context.CurrentSpeed;
+                manager.BikeDriveVisual?.Step(manager.BikeLinearSpeed, Time.fixedDeltaTime);
             }
         }
 

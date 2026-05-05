@@ -3,7 +3,9 @@ using UnityEngine;
 
 public class JumpControllerCtx
 {
-    public Vector3 RayStartPos;
+    public Vector3 RayStartPos => FootTransform.position;
+
+    public Transform FootTransform;
 
     public LayerMask GroundLayer;
 
@@ -29,10 +31,10 @@ public class JumpControllerCtx
     /// <param name="jumpForce"></param>
     /// <param name="rb"></param>
     /// <param name="jumpInterval"></param>
-    public JumpControllerCtx(Vector3 rayStartPos, LayerMask groundLayer, float groundCheckDistance,
+    public JumpControllerCtx(Transform footTransform, LayerMask groundLayer, float groundCheckDistance,
     int maxJumpCount, float jumpForce, Rigidbody rb, float jumpInterval, Action onLand)
     {
-        RayStartPos = rayStartPos;
+        FootTransform = footTransform;
         GroundLayer = groundLayer;
         GroundCheckDistance = groundCheckDistance;
         MaxJumpCount = maxJumpCount;

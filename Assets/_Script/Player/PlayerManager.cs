@@ -15,18 +15,29 @@ public class PlayerManager : MonoBehaviour
     public Transform PlayerBottom;
     public Rigidbody Rb;
 
+    public BaseFootIK FootIk;
+
+    [Header("Bike")]
+    public BikeDriveVisual BikeDriveVisual;
+
+    /// <summary>Tốc độ tuyến tính hiện tại khi đi xe (m/s); dùng cho visual và coast khi idle.</summary>
+    public float BikeLinearSpeed;
+
     #region References
     public bool useCinemachine = false;
 
 
     private PlayerStateMachine stateMachine;
 
+    private List<BikeArea> bikeAreas = new List<BikeArea>();
+
     [Header("References")]
     [SerializeField] private Transform cameraCinemachine;
     [SerializeField] private Transform headPoint;
-    [SerializeField] private JumpCtl jumpCtl;
     [SerializeField] private CamCtl camCtl;
     #endregion
+
+    private Vector3 moveInput;
     private void Awake()
     {
         Transform = this.transform;
@@ -34,8 +45,21 @@ public class PlayerManager : MonoBehaviour
         stateMachine = new PlayerStateMachine();
         InitStates();
     }
+
+    private void OnEnable()
+    {
+        BikeArea.OnPlayerEnter += OnBikeAreaEnter;
+        BikeArea.OnPlayerExit += OnBikeAreaExit;
+    }
+
+    private void OnDisable()
+    {
+        BikeArea.OnPlayerEnter -= OnBikeAreaEnter;
+        BikeArea.OnPlayerExit -= OnBikeAreaExit;
+    }
     private void Update()
     {
+        moveInput = InputHandler.GetMoveInput();
         stateMachine.GetCurrentState().Update();
     }
 
@@ -60,7 +84,7 @@ public class PlayerManager : MonoBehaviour
         }
     }
 
-    public Vector2 GetMovementDirection(Vector2 moveInput)
+    public Vector3 GetMovementDirection(Vector2 moveInput)
     {
         if (moveInput.magnitude == 0)
             return Vector3.zero;
@@ -69,9 +93,9 @@ public class PlayerManager : MonoBehaviour
         Vector3 cameraRight = GetCameraRightVector();
         cameraRight.y = 0;
 
-        Debug.Log($"Camera Forward: {cameraForward}, Camera Right: {cameraRight}");
+        //Debug.Log($"Camera Forward: {cameraForward}, Camera Right: {cameraRight}");
         Vector3 moveDirection = (cameraForward * moveInput.y + cameraRight * moveInput.x).normalized;
-        Debug.Log($"Calculated Move Direction: {moveDirection} from Input: {moveInput}");
+        //Debug.Log($"Calculated Move Direction: {moveDirection} from Input: {moveInput}");
         return moveDirection;
     }
 
@@ -91,5 +115,22 @@ public class PlayerManager : MonoBehaviour
             : camCtl.Target.right;
         right.y = 0;
         return right.normalized;
+    }
+
+    private void OnBikeAreaEnter(BikeArea bikeArea)
+    {
+        bikeAreas.Add(bikeArea);
+        FootIk.ActiveIk();
+        stateMachine.SwitchState(moveInput.magnitude > 0.1f ? PlayerStateEnum.BikeRide : PlayerStateEnum.BikeIdle);
+    }
+
+    private void OnBikeAreaExit(BikeArea bikeArea)
+    {
+        bikeAreas.Remove(bikeArea);
+        if (bikeAreas.Count == 0)
+        {
+            FootIk.DeactiveIk();
+            stateMachine.SwitchState(moveInput.magnitude > 0.1f ? PlayerStateEnum.Walk : PlayerStateEnum.Idle);
+        }
     }
 }

@@ -17,8 +17,9 @@ namespace Player.States
         private MotorContext moveContext;
         public override void OnEnter()
         {
+            manager.Animator.SetTrigger("BikeJump");
             jumpController = new BikeJump();
-            context = new JumpControllerCtx(manager.PlayerBottom.position, config.GroundLayer, config.GroundCheckDistance,
+            context = new JumpControllerCtx(manager.PlayerBottom, config.GroundLayer, config.GroundCheckDistance,
             config.maxJumpCount, config.JumpForce, manager.Rb, config.JumpInterval, OnLand);
         }
 

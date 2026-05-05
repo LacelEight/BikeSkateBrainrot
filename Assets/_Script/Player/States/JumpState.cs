@@ -22,11 +22,13 @@ namespace Player.States
 
         public override void OnEnter()
         {
+            manager.Animator.SetTrigger("Jump");
+            
             jumpController = new FootJump();
             motor = new FootMotor();
             moveContext = new MotorContext(moveConfig.MoveSpeed, moveConfig.RotateSpeed, manager.Rb);
 
-            context = new JumpControllerCtx(manager.PlayerBottom.position, config.GroundLayer, config.GroundCheckDistance,
+            context = new JumpControllerCtx(manager.PlayerBottom, config.GroundLayer, config.GroundCheckDistance,
             config.maxJumpCount, config.JumpForce, manager.Rb, config.JumpInterval, OnLand);
         }
 

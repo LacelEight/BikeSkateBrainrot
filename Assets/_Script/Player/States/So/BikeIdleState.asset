@@ -13,3 +13,4 @@ MonoBehaviour:
   m_Name: BikeIdleState
   m_EditorClassIdentifier: Assembly-CSharp::Player.States.BikeIdleState
   Name: 5
+  bikeMoveConfig: {fileID: 11400000, guid: 0b89b323a9e0fb242bb19827a9cb26e7, type: 2}

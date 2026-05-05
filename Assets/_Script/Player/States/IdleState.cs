@@ -9,7 +9,7 @@ namespace Player.States
         Vector2 moveInput;
         public override void OnEnter()
         {
-            
+            manager.Animator.SetTrigger("Idle");
         }
 
         public override void OnExit()
