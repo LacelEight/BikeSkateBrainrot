@@ -15,7 +15,15 @@ namespace Player.States
         {
             manager.Animator.SetTrigger("BikeRun");
             motor = new BikeMotor();
+            // Restore velocity từ state trước đó
+            if (motor is BikeMotor bikeMotor)
+            {
+                bikeMotor.InitializeSpeed(manager.BikeLinearSpeed);
+            }
             context = new MotorContext(config.MoveSpeed, config.RotateSpeed, manager.Rb);
+            context.Acceleration = config.Acceleration;
+            context.Deceleration = config.Deceleration;
+            context.MaxSpeed = config.MaxSpeed > 0f ? config.MaxSpeed : config.MoveSpeed;
         }
 
         public override void OnExit()
@@ -26,9 +34,7 @@ namespace Player.States
         {
             if (moveInput.magnitude > 0.1f)
             {
-                context.MaxSpeed = config.MaxSpeed > 0f ? config.MaxSpeed : config.MoveSpeed;
-                context.Acceleration = config.Acceleration;
-                context.Deceleration = config.Deceleration;
+
                 context.MoveDirection = manager.GetMovementDirection(moveInput);
                 context.MoveInput = moveInput;
                 motor.Move(context);

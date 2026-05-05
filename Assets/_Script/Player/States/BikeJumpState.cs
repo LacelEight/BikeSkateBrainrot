@@ -21,7 +21,15 @@ namespace Player.States
             manager.Animator.SetTrigger("BikeJump");
 
             motor = new BikeMotor();
+            // Restore velocity từ state trước đó
+            if (motor is BikeMotor bikeMotor)
+            {
+                bikeMotor.InitializeSpeed(manager.BikeLinearSpeed);
+            }
             moveContext = new MotorContext(moveConfig.MoveSpeed, moveConfig.RotateSpeed, manager.Rb);
+            moveContext.Acceleration = moveConfig.Acceleration;
+            moveContext.Deceleration = moveConfig.Deceleration;
+            moveContext.MaxSpeed = moveConfig.MaxSpeed > 0f ? moveConfig.MaxSpeed : moveConfig.MoveSpeed;
 
             jumpController = new BikeJump();
             context = new JumpControllerCtx(manager.PlayerBottom, config.GroundLayer, config.GroundCheckDistance,
@@ -42,6 +50,7 @@ namespace Player.States
 
             if (moveInput.magnitude > 0.1f)
             {
+
                 moveContext.MoveDirection = manager.GetMovementDirection(moveInput);
                 moveContext.MoveInput = moveInput;
                 motor.Move(moveContext);
@@ -63,6 +72,7 @@ namespace Player.States
 
         private void OnLand()
         {
+            Debug.LogError("Landed!");
             stateMachine.SwitchState(moveInput.magnitude > 0.1f ? PlayerStateEnum.BikeRide : PlayerStateEnum.BikeIdle);
         }
     }

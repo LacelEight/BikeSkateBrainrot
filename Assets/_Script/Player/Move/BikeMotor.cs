@@ -4,6 +4,12 @@ public class BikeMotor : BaseGroundMotor
 {
     private float _currentSpeed;
 
+    /// <summary>Khởi tạo _currentSpeed với giá trị trước đó để giữ velocity</summary>
+    public void InitializeSpeed(float initialSpeed)
+    {
+        _currentSpeed = Mathf.Max(0f, initialSpeed);
+    }
+
     public override void Move(MotorContext ctx)
     {
         if (ctx.Rb == null)

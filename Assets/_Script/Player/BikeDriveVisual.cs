@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class BikeDriveVisual : MonoBehaviour
@@ -44,6 +45,12 @@ public class BikeDriveVisual : MonoBehaviour
             tireRight.Rotate(tireRightLocalAxis.normalized, tireDelta, Space.Self);
 
         RotateBike(rotateDegrees, deltaTime);
+    }
+
+    public void ResetRotation()
+    {
+        bikeHead.localRotation = Quaternion.Euler(bikeHeadLocalAxis * 0f);
+        rendererRoot.localRotation = Quaternion.Euler(rendererRootLocalAxis * 0f);
     }
 
     private void RotateBike(float rotateDegrees, float deltaTime)

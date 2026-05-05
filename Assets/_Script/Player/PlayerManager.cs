@@ -9,13 +9,15 @@ public class PlayerManager : MonoBehaviour
     public List<PlayerState> playerStates;
     public PlayerInputHandler InputHandler;
 
+    public Transform SpawnPoint;
+
     public Animator Animator;
     [HideInInspector]
     public Transform Transform;
     public Transform PlayerBottom;
     public Rigidbody Rb;
 
-    public BaseFootIK FootIk;
+    public BaseFootIK BikeIk;
 
     [Header("Bike")]
     public BikeDriveVisual BikeDriveVisual;
@@ -35,6 +37,7 @@ public class PlayerManager : MonoBehaviour
     [SerializeField] private Transform cameraCinemachine;
     [SerializeField] private Transform headPoint;
     [SerializeField] private CamCtl camCtl;
+    [SerializeField] private CinemachineInputCtl cinemachineInputCtl;
     #endregion
 
     private Vector3 moveInput;
@@ -44,18 +47,21 @@ public class PlayerManager : MonoBehaviour
         if (!Rb) Rb = GetComponent<Rigidbody>();
         stateMachine = new PlayerStateMachine();
         InitStates();
+        SpawnPlayer();
     }
 
     private void OnEnable()
     {
         BikeArea.OnPlayerEnter += OnBikeAreaEnter;
         BikeArea.OnPlayerExit += OnBikeAreaExit;
+        GameManager.OnPlayerDead += SpawnPlayer;
     }
 
     private void OnDisable()
     {
         BikeArea.OnPlayerEnter -= OnBikeAreaEnter;
         BikeArea.OnPlayerExit -= OnBikeAreaExit;
+        GameManager.OnPlayerDead -= SpawnPlayer;
     }
     private void Update()
     {
@@ -65,13 +71,22 @@ public class PlayerManager : MonoBehaviour
 
     private void FixedUpdate()
     {
-        camCtl.RotateCamera();
+        if (useCinemachine && cinemachineInputCtl != null)
+            cinemachineInputCtl.RotateCamera();
+        else if (camCtl != null)
+            camCtl.RotateCamera();
+
         stateMachine.GetCurrentState().PhysicsUpdate();
     }
 
     private void Start()
     {
         stateMachine.InitializeState(PlayerStateEnum.Idle);
+    }
+
+    private void SpawnPlayer()
+    {
+        Rb.transform.position = SpawnPoint.position;
     }
 
     private void InitStates()
@@ -120,7 +135,7 @@ public class PlayerManager : MonoBehaviour
     private void OnBikeAreaEnter(BikeArea bikeArea)
     {
         bikeAreas.Add(bikeArea);
-        FootIk.ActiveIk();
+        BikeIk.ActiveIk();
         stateMachine.SwitchState(moveInput.magnitude > 0.1f ? PlayerStateEnum.BikeRide : PlayerStateEnum.BikeIdle);
     }
 
@@ -129,7 +144,8 @@ public class PlayerManager : MonoBehaviour
         bikeAreas.Remove(bikeArea);
         if (bikeAreas.Count == 0)
         {
-            FootIk.DeactiveIk();
+            BikeIk.DeactiveIk();
+            BikeDriveVisual.ResetRotation();
             stateMachine.SwitchState(moveInput.magnitude > 0.1f ? PlayerStateEnum.Walk : PlayerStateEnum.Idle);
         }
     }
