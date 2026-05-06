@@ -48,6 +48,13 @@ public class PlayerManager : MonoBehaviour
         stateMachine = new PlayerStateMachine();
         InitStates();
         SpawnPlayer();
+
+    }
+
+    public void Start()
+    {
+        stateMachine.InitializeState(PlayerStateEnum.Idle);
+        GameManager.InjectPlayer(this);
     }
 
     private void OnEnable()
@@ -77,11 +84,6 @@ public class PlayerManager : MonoBehaviour
             camCtl.RotateCamera();
 
         stateMachine.GetCurrentState().PhysicsUpdate();
-    }
-
-    private void Start()
-    {
-        stateMachine.InitializeState(PlayerStateEnum.Idle);
     }
 
     private void SpawnPlayer()
