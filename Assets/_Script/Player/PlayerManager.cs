@@ -60,7 +60,7 @@ public class PlayerManager : MonoBehaviour
         BikeArea.OnPlayerEnter += OnBikeAreaEnter;
         BikeArea.OnPlayerExit += OnBikeAreaExit;
         GameManager.OnPlayerDead += OnPlayerDead;
-        BrainrotManager.OnTempBrainrotCollected += OnTempBrainrotCollected;
+        BrainrotManager.OnBrainrotCollected += OnTempBrainrotCollected;
     }
 
     private void OnDisable()
@@ -68,7 +68,7 @@ public class PlayerManager : MonoBehaviour
         BikeArea.OnPlayerEnter -= OnBikeAreaEnter;
         BikeArea.OnPlayerExit -= OnBikeAreaExit;
         GameManager.OnPlayerDead -= OnPlayerDead;
-        BrainrotManager.OnTempBrainrotCollected -= OnTempBrainrotCollected;
+        BrainrotManager.OnBrainrotCollected -= OnTempBrainrotCollected;
     }
     private void Update()
     {

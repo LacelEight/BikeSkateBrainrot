@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c148930580398b5458f452dd9a2b8a84, type: 3}
+  m_Name: Capsule
+  m_EditorClassIdentifier: Assembly-CSharp::BrainrotConfig
+  Type: 3
+  Rarity: 1
+  BaseTimeRange:
+    Min: 40
+    Max: 60
+  BaseValueRange:
+    Min: 15
+    Max: 30
+  MaterialDic:
+    m_Keys: 00000000
+    m_Values:
+    - {fileID: 2100000, guid: eafdc37a013c12f40ad150fd0253df24, type: 2}
+  Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
+  Description: 

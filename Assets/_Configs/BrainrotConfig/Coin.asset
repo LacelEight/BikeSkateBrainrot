@@ -10,18 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c148930580398b5458f452dd9a2b8a84, type: 3}
-  m_Name: BrainrotConfig
+  m_Name: Coin
   m_EditorClassIdentifier: Assembly-CSharp::BrainrotConfig
   Type: 1
-  Rarity: 1
+  Rarity: 7
   BaseTimeRange:
-    Min: 40
-    Max: 60
+    Min: 20
+    Max: 90
   BaseValueRange:
     Min: 15
     Max: 30
   MaterialDic:
-    m_Keys: 
-    m_Values: []
-  Mesh: {fileID: 0}
+    m_Keys: 00000000
+    m_Values:
+    - {fileID: 2100000, guid: eafdc37a013c12f40ad150fd0253df24, type: 2}
+  Mesh: {fileID: 4300000, guid: cc10b0aa273ecc6478abdae296840c6f, type: 2}
   Description: 

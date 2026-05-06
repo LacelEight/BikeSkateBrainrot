@@ -12,3 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cefaa7f20ec55c640a59acc3a6d43089, type: 3}
   m_Name: BrainrotPoolService
   m_EditorClassIdentifier: Assembly-CSharp::BrainrotPoolService
+  PoolTransform: {fileID: 0}
+  NumberOfBrainrotToPreload: 100
+  BrainrotPoolList: []
+  BrainrotConfigs:
+  - {fileID: 11400000, guid: ba87e55d692a2f54c98de9cbb44c98f3, type: 2}
+  - {fileID: 11400000, guid: c62560d85594e3a4e9ad17861785aae8, type: 2}
+  - {fileID: 11400000, guid: 9855400e2b2ba4c4db3552a4fca45b19, type: 2}
+  - {fileID: 11400000, guid: 380873c9d6f7f7e4583505cf67570d0e, type: 2}
+  - {fileID: 11400000, guid: 01a1c48fea99bd04e8432a9e214bb29d, type: 2}
+  PrefabAdress: Assets/_Prefabs/Brainrot.prefab
+  BrainrotPrefab: {fileID: 0}

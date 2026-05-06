@@ -13,11 +13,20 @@ public class BrainrotConfig : ScriptableObject
     public Mesh Mesh;
     [TextArea(3, 10)]
     public string Description;
+
+    public Material GetMaterial(Modifier modifier)
+    {
+        if (MaterialDic.ContainsKey(modifier))
+        {
+            return MaterialDic[modifier];
+        }
+        return MaterialDic[Modifier.None];
+    }
 }
 
 [Serializable]
 public class Range
 {
-    public float Min;
-    public float Max;
+    public double Min;
+    public double Max;
 }
