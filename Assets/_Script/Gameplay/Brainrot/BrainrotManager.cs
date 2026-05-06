@@ -1,16 +1,37 @@
+using System;
 using UnityEngine;
 
-public class BrainrotManagert : MonoBehaviour
+public class BrainrotManager : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public BrainrotCanvas BrainrotCanvas;
+    public BrainrotConfig BrainrotConfig;
+    public static Action<BrainrotManager> OnPlayerEnterBrainrotField;
+    public static Action<BrainrotManager> OnPlayerExitBrainrotField;
+    public static Action<BrainrotManager> OnTempBrainrotCollected;
+
+    private bool IsCollected = false;
+
+    private void OnTriggerEnter(Collider other)
     {
-        
+        if (other.CompareTag("Player") && !IsCollected)
+        {
+            OnPlayerEnterBrainrotField?.Invoke(this);
+        }
     }
 
-    // Update is called once per frame
-    void Update()
+    private void OnTriggerExit(Collider other)
     {
-        
+        if (other.CompareTag("Player") && !IsCollected)
+        {
+            OnPlayerExitBrainrotField?.Invoke(this);
+        }
+    }
+
+    public void CollectBrainrot()
+    {
+        IsCollected = true;
+        BrainrotCanvas.DisableCanvas();
+        OnTempBrainrotCollected?.Invoke(this);
+        OnPlayerExitBrainrotField?.Invoke(this);
     }
 }

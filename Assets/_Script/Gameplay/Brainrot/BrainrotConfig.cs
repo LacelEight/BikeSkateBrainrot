@@ -1,16 +1,23 @@
+using System;
 using UnityEngine;
+using UnityEngine.Rendering;
 
-public class BrainrotConfig : MonoBehaviour
+[CreateAssetMenu(fileName = "BrainrotConfig", menuName = "Configs/BrainrotConfig")]
+public class BrainrotConfig : ScriptableObject
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    public BrainrotType Type;
+    public Rarity Rarity;
+    public Range BaseTimeRange;
+    public Range BaseValueRange;
+    public SerializedDictionary<Modifier, Material> MaterialDic = new();
+    public Mesh Mesh;
+    [TextArea(3, 10)]
+    public string Description;
+}
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+[Serializable]
+public class Range
+{
+    public float Min;
+    public float Max;
 }

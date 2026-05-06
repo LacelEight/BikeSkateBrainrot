@@ -6,6 +6,7 @@ public enum BrainrotType
     Cube = 1,
     Shpere = 2,
     Cylinder = 3,
-    Cone = 4,
-    Pyramid = 5,
+    Coin = 4,
+    Wheel = 5
+
 }

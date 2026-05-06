@@ -8,9 +8,8 @@ public class PlayerManager : MonoBehaviour
 {
     public List<PlayerState> playerStates;
     public PlayerInputHandler InputHandler;
-
     public Transform SpawnPoint;
-
+    public List<Transform> TempBrainrotPoint;
     public Animator Animator;
     [HideInInspector]
     public Transform Transform;
@@ -22,7 +21,6 @@ public class PlayerManager : MonoBehaviour
     [Header("Bike")]
     public BikeDriveVisual BikeDriveVisual;
 
-    /// <summary>Tốc độ tuyến tính hiện tại khi đi xe (m/s); dùng cho visual và coast khi idle.</summary>
     public float BikeLinearSpeed;
     public float BikeRotate;
     #region References
@@ -47,7 +45,7 @@ public class PlayerManager : MonoBehaviour
         if (!Rb) Rb = GetComponent<Rigidbody>();
         stateMachine = new PlayerStateMachine();
         InitStates();
-        SpawnPlayer();
+        OnPlayerDead();
 
     }
 
@@ -61,14 +59,16 @@ public class PlayerManager : MonoBehaviour
     {
         BikeArea.OnPlayerEnter += OnBikeAreaEnter;
         BikeArea.OnPlayerExit += OnBikeAreaExit;
-        GameManager.OnPlayerDead += SpawnPlayer;
+        GameManager.OnPlayerDead += OnPlayerDead;
+        BrainrotManager.OnTempBrainrotCollected += OnTempBrainrotCollected;
     }
 
     private void OnDisable()
     {
         BikeArea.OnPlayerEnter -= OnBikeAreaEnter;
         BikeArea.OnPlayerExit -= OnBikeAreaExit;
-        GameManager.OnPlayerDead -= SpawnPlayer;
+        GameManager.OnPlayerDead -= OnPlayerDead;
+        BrainrotManager.OnTempBrainrotCollected -= OnTempBrainrotCollected;
     }
     private void Update()
     {
@@ -86,9 +86,23 @@ public class PlayerManager : MonoBehaviour
         stateMachine.GetCurrentState().PhysicsUpdate();
     }
 
+    private void OnPlayerDead()
+    {
+        RemoveTempBrainrot();
+        SpawnPlayer();
+    }
+
     private void SpawnPlayer()
     {
         Rb.transform.position = SpawnPoint.position;
+    }
+
+    private void RemoveTempBrainrot()
+    {
+        if (Services.InventoryService.TempInventoryBrainrot != null)
+        {
+            Services.InventoryService.ClearTempInventory();
+        }
     }
 
     private void InitStates()
@@ -151,4 +165,18 @@ public class PlayerManager : MonoBehaviour
             stateMachine.SwitchState(moveInput.magnitude > 0.1f ? PlayerStateEnum.Walk : PlayerStateEnum.Idle);
         }
     }
+
+    private void OnTempBrainrotCollected(BrainrotManager manager)
+    {
+        foreach (var point in TempBrainrotPoint)
+        {
+            if (point.childCount == 0)
+            {
+                manager.transform.SetParent(point);
+                manager.transform.localPosition = Vector3.zero;
+                break;
+            }
+        }
+    }
+
 }
